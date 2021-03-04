@@ -141,25 +141,4 @@ class Mailing {
 
         return $record;
     }
-
-    /**
-     * @param stdClass $record
-     * @return stdClass
-     */
-    protected static function formatLog(stdClass $record) {
-        $record->id = (int) $record->id;
-        $record->recalluserid = (int) $record->recalluserid;
-        $record->mailingcontentformat = (int) $record->mailingcontentformat;
-        $record->mailingmode = (int) $record->mailingmode;
-        $record->mailingdelay = (int) $record->mailingdelay;
-        $record->mailingstatus = (bool) $record->mailingstatus;
-        $record->targetmoduleid = (int) $record->targetmoduleid;
-        $record->targetmodulestatus = (int) $record->targetmodulestatus;
-        $record->customcertmoduleid = empty($record->customcertmoduleid) ? null : (int) $record->customcertmoduleid;
-        $record->starttime = (int) $record->starttime;
-        $record->timecreated = (int) $record->timecreated;
-        $record->timemodified = (int) $record->timemodified;
-
-        return $record;
-    }
 }
