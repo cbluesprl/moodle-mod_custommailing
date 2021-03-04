@@ -15,18 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file manages all the en strings
+ * Prints an instance of mod_recall_user.
  *
  * @package    mod_recalluser
- * @author     jeanfrancois@cblue.be
+ * @author     jeanfrancois@cblue.be,olivier@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Recalluser';
-$string['modulename'] = 'Recalluser';
-$string['modulenameplural'] = "Recalluser's";
-$string['recallusername'] = "Name";
-$string['coursecompletionenabled'] = "Warning : course completion has been enabled.";
-$string['coursecompletionnotenabled'] = "Error : The activity was added but course completion could not be enabled.";
-$string['pluginadministration'] = 'Recalluser administration';
+require_once __DIR__ . '/../../config.php';
+
+global $CFG, $DB, $PAGE, $OUTPUT;
+
+require_once $CFG->dirroot . '/mod/recalluser/lib.php';
+
+$id = required_param('id', PARAM_INT);
+
+[$course, $cm] = get_course_and_cm_from_cmid($id, 'recalluser');
+$recalluser = $DB->get_record("recalluser", ['id' => $cm->instance]);
+
+require_login($course, false, $cm);

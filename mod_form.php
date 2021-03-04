@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once $CFG->dirroot . '/course/moodleform_mod.php';
 
 /**
  * Moodleform class.
@@ -47,10 +47,13 @@ class mod_recalluser_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('recallusername', 'recalluser'), ['size' => '64']);
+        $mform->addElement('text', 'name', get_string('recallusername', 'recalluser'), ['size' => '32']);
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+
+        // Adding the standard "intro" fields.
+        $this->standard_intro_elements();
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();

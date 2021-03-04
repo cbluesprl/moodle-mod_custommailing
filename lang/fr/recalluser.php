@@ -26,3 +26,7 @@
 $string['pluginname'] = 'Recalluser';
 $string['modulename'] = 'Recalluser';
 $string['modulenameplural'] = "Recalluser's";
+$string['recallusername'] = "Nom";
+$string['coursecompletionenabled'] = "Attetion : La complétion du cours a été activée.";
+$string['coursecompletionnotenabled'] = "Erreur : L'activité a été ajoutée mais la complétion du cours n'a pas pu être activée.";
+$string['pluginadministration'] = 'Admnistration recalluser';

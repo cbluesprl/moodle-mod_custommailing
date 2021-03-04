@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file displays the instances of recalluser in a particular course
+ * Display information about all the mod_recalluser modules in the requested course.
  *
  * @package    mod_recalluser
  * @author     jeanfrancois@cblue.be,olivier@cblue.be
@@ -23,10 +23,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once '../../config.php';
-require_once 'lib.php';
+use mod_recalluser\event\course_module_instance_list_viewed;
 
-global $DB, $PAGE, $OUTPUT;
+require_once __DIR__ . '/../../config.php';
+
+global $CFG, $DB, $PAGE, $OUTPUT;
+
+require_once $CFG->dirroot . '/mod/recalluser/lib.php';
 
 $id = required_param('id', PARAM_INT);
 
@@ -44,7 +47,7 @@ $PAGE->set_url('/mod/recalluser/index.php', ['id' => $id]);
 $PAGE->set_pagelayout('incourse');
 
 // Add the page view to the Moodle log.
-$event = \mod_recalluser\event\course_module_instance_list_viewed::create(
+$event = course_module_instance_list_viewed::create(
     [
         'context' => context_course::instance($course->id)
     ]
@@ -53,13 +56,11 @@ $event->add_record_snapshot('course', $course);
 $event->trigger();
 
 // Print the header.
-
 $PAGE->set_title(format_string(get_string('modulename', 'reengagement')));
 $PAGE->set_heading(format_string($course->fullname));
-
 echo $OUTPUT->header();
-// Get all the appropriate data.
 
+// Get all the appropriate data.
 if (!$recalls = get_all_instances_in_course('recalluser', $course)) {
     notice('There are no instances of recalluser', "../../course/view.php?id=$course->id");
     die;

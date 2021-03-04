@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\notification;
+
 /**
  * @param $recalluser
  * @return bool|int
@@ -30,19 +32,29 @@
  * @throws dml_exception
  */
 function recalluser_add_instance($recalluser) {
-    global $DB;
+    global $CFG, $DB;
 
     $recalluser->timecreated = time();
+    $recalluser->timemodified = time();
 
-    // Check course has completion enabled, and enable it if not, and user has permission to do so.
+    // Check if course has completion enabled, and enable it if not (and user has permission to do so)
     $course = $DB->get_record('course', ['id' => $recalluser->course]);
     if (empty($course->enablecompletion)) {
-        $coursecontext = context_course::instance($course->id);
-        if (has_capability('moodle/course:update', $coursecontext)) {
-            $data = ['id' => $course->id, 'enablecompletion' => '1'];
-            $DB->update_record('course', $data);
-            rebuild_course_cache($course->id);
+        if (empty($CFG->enablecompletion)) {
+            // Completion tracking is disabled in Moodle
+            notification::error(get_string('coursecompletionnotenabled', 'recalluser'));
+        } else {
+            // Completion tracking is enabled in Moodle
+            if (has_capability('moodle/course:update', context_course::instance($course->id))) {
+                $data = ['id' => $course->id, 'enablecompletion' => '1'];
+                $DB->update_record('course', $data);
+                rebuild_course_cache($course->id);
+                notification::warning(get_string('coursecompletionenabled', 'recalluser'));
+            } else {
+                notification::error(get_string('coursecompletionnotenabled', 'recalluser'));
+            }
         }
+
     }
 
     return $DB->insert_record('recalluser', $recalluser);
