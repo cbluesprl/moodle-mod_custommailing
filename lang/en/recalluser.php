@@ -24,3 +24,5 @@
  */
 
 $string['pluginname'] = 'Recalluser';
+$string['modulename'] = 'Recalluser';
+$string['modulenameplural'] = "Recalluser's";
