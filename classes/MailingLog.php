@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Mailing Class
+ * MailingLog Class
  *
  * @package    mod_recalluser
  * @author     olivier@cblue.be
