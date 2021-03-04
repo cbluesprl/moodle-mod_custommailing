@@ -18,12 +18,30 @@
  * This file manages the public functions of this module
  *
  * @package    mod_recalluser
- * @author     jeanfrancois@cblue.be
+ * @author     jeanfrancois@cblue.be,olivier@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use core\notification;
+use mod_recalluser\Mailing;
+
+define('MAILING_MODE_NONE', 0);
+define('MAILING_MODE_FIRSTLAUNCH', 1);
+define('MAILING_MODE_REGISTRATION', 2);
+define('MAILING_MODE_COMPLETE', 3);
+define('MAILING_MODE_DAYSFROMINSCRIPTIONDATE', 4);
+define('MAILING_MODE_DAYSFROMLASTCONNECTION', 5);
+define('MAILING_MODE_DAYSFROMFIRSTLAUNCH', 6);
+define('MAILING_MODE_DAYSFROMLASTLAUNCH', 7);
+
+define('MAILING_STATUS_DISABLED', 0);
+define('MAILING_STATUS_ENABLED', 1);
+
+define('MAILING_LOG_IDLE', 0);
+define('MAILING_LOG_PROCESSING', 1);
+define('MAILING_LOG_SENT', 2);
+define('MAILING_LOG_FAILED', 3);
 
 /**
  * @param $recalluser
@@ -88,15 +106,8 @@ function recalluser_delete_instance($id) {
 
     $result = true;
 
-    // Delete any dependent records here.
-    if ($mailings = $DB->get_records('recalluser_mailing', ['cmid' => $recalluser->id])) {
-        foreach ($mailings as $mailing) {
-            if (!$DB->delete_records('recalluser_logs', ['mailingid' => $mailing->id])) {
-                $result = false;
-            }
-        }
-        $DB->delete_records('recalluser_mailing', ['cmid' => $recalluser->id]);
-    }
+    // Delete any dependent mailing here.
+    Mailing::deleteAll($recalluser->id);
 
     if (!$DB->delete_records('recalluser', ['id' => $recalluser->id])) {
         $result = false;

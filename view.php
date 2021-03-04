@@ -18,7 +18,7 @@
  * Prints an instance of mod_recall_user.
  *
  * @package    mod_recalluser
- * @author     jeanfrancois@cblue.be,olivier@cblue.be
+ * @author     olivier@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
