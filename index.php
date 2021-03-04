@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This page lists all the instances of recalluser in a particular course
+ * This file displays the instances of recalluser in a particular course
  *
  * @package    mod_recalluser
- * @author     jeanfrancois@cblue.be
+ * @author     jeanfrancois@cblue.be,olivier@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,7 +31,7 @@ global $DB, $PAGE, $OUTPUT;
 $id = required_param('id', PARAM_INT);
 
 if (!empty($id)) {
-    if (!$course = $DB->get_record('course', array('id' => $id))) {
+    if (!$course = $DB->get_record('course', ['id' => $id])) {
         print_error('invalidcourseid');
     }
 } else {
@@ -40,13 +40,15 @@ if (!empty($id)) {
 
 require_course_login($course);
 
-$PAGE->set_url('/mod/recalluser/index.php', array('id' => $id));
+$PAGE->set_url('/mod/recalluser/index.php', ['id' => $id]);
 $PAGE->set_pagelayout('incourse');
 
 // Add the page view to the Moodle log.
-$event = \mod_recalluser\event\course_module_instance_list_viewed::create(array(
-    'context' => context_course::instance($course->id)
-));
+$event = \mod_recalluser\event\course_module_instance_list_viewed::create(
+    [
+        'context' => context_course::instance($course->id)
+    ]
+);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
 
@@ -89,9 +91,9 @@ foreach ($recalls as $recall) {
 
     $class = $recall->visible ? '' : 'class="dimmed"'; // Hidden modules are dimmed.
 
-    $table->data[] = array (
-        $printsection, html_writer::link('view.php?id='.$cm->id, format_string($recall->name))
-    );
+    $table->data[] = [
+        $printsection, html_writer::link('view.php?id=' . $cm->id, format_string($recall->name))
+    ];
 }
 
 echo html_writer::table($table);

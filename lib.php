@@ -1,10 +1,26 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * This script is owned by CBlue SPRL, please contact CBlue regarding any licences issues.
+ * This file manages the public functions of this module
  *
- * @package:     mod_recalluser
- * @author:      jeanfrancois@cblue.be
- * @copyright:   CBlue SPRL, 2021
+ * @package    mod_recalluser
+ * @author     jeanfrancois@cblue.be
+ * @copyright  2021 CBlue SPRL
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
@@ -19,11 +35,11 @@ function recalluser_add_instance($recalluser) {
     $recalluser->timecreated = time();
 
     // Check course has completion enabled, and enable it if not, and user has permission to do so.
-    $course = $DB->get_record('course', array('id' => $recalluser->course));
+    $course = $DB->get_record('course', ['id' => $recalluser->course]);
     if (empty($course->enablecompletion)) {
         $coursecontext = context_course::instance($course->id);
         if (has_capability('moodle/course:update', $coursecontext)) {
-            $data = array('id' => $course->id, 'enablecompletion' => '1');
+            $data = ['id' => $course->id, 'enablecompletion' => '1'];
             $DB->update_record('course', $data);
             rebuild_course_cache($course->id);
         }
@@ -54,23 +70,23 @@ function recalluser_update_instance($recalluser) {
 function recalluser_delete_instance($id) {
     global $DB;
 
-    if (!$recalluser = $DB->get_record('recalluser', array('id' => $id))) {
+    if (!$recalluser = $DB->get_record('recalluser', ['id' => $id])) {
         return false;
     }
 
     $result = true;
 
     // Delete any dependent records here.
-    if ($mailings = $DB->get_records('recalluser_mailing', array('cmid' => $recalluser->id))) {
+    if ($mailings = $DB->get_records('recalluser_mailing', ['cmid' => $recalluser->id])) {
         foreach ($mailings as $mailing) {
-            if (!$DB->delete_records('recalluser_logs', array('mailingid' => $mailing->id))) {
+            if (!$DB->delete_records('recalluser_logs', ['mailingid' => $mailing->id])) {
                 $result = false;
             }
         }
-        $DB->delete_records('recalluser_mailing', array('cmid' => $recalluser->id));
+        $DB->delete_records('recalluser_mailing', ['cmid' => $recalluser->id]);
     }
 
-    if (!$DB->delete_records('recalluser', array('id' => $recalluser->id))) {
+    if (!$DB->delete_records('recalluser', ['id' => $recalluser->id])) {
         $result = false;
     }
 

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This file manages the course_module_viewed event
  *
  * @package    mod_recalluser
  * @author     jeanfrancois@cblue.be
@@ -26,10 +27,13 @@ namespace mod_recalluser\event;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Class course_module_viewed
+ * @package mod_recalluser\event
+ */
 class course_module_viewed extends \core\event\course_module_viewed {
+
     /**
-     * Init method.
-     *
      * @return void
      */
     protected function init() {

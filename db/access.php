@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capability definitions
+ * This file manages all the capability definitions
  *
  * @package    mod_recalluser
  * @author     jeanfrancois@cblue.be
@@ -25,26 +25,26 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
+$capabilities = [
 
-    'mod/recalluser:addinstance' => array(
+    'mod/recalluser:addinstance' => [
         'riskbitmask' => RISK_XSS,
 
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
+        'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
-        ),
+        ],
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
-    ),
+    ],
 
-    'mod/recalluser:edit' => array(
+    'mod/recalluser:edit' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'legacy' => array(
+        'legacy' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-        )
-    ),
-);
+        ]
+    ],
+];

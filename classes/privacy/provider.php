@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This file manages the privacy
  *
  * @package    mod_recalluser
  * @author     jeanfrancois@cblue.be
@@ -26,10 +27,13 @@ namespace mod_recalluser\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-
-class provider implements
-    // This plugin does not store any personal user data.
-    \core_privacy\local\metadata\null_provider {
+/**
+ * Class provider
+ * This plugin does not store any personal user data.
+ *
+ * @package mod_recalluser\privacy
+ */
+class provider implements \core_privacy\local\metadata\null_provider {
 
     /**
      * Get the language string identifier with the component's language
@@ -37,7 +41,7 @@ class provider implements
      *
      * @return  string
      */
-    public static function get_reason() : string {
+    public static function get_reason(): string {
         return 'privacy:metadata';
     }
 }
