@@ -28,10 +28,42 @@ require_once __DIR__ . '/../../config.php';
 global $CFG, $DB, $PAGE, $OUTPUT;
 
 require_once $CFG->dirroot . '/mod/recalluser/lib.php';
+require_once $CFG->dirroot . '/mod/recalluser/mailing_form.php';
 
 $id = required_param('id', PARAM_INT);
 
 [$course, $cm] = get_course_and_cm_from_cmid($id, 'recalluser');
 $recalluser = $DB->get_record("recalluser", ['id' => $cm->instance]);
+$context = context_module::instance($cm->id);
 
 require_login($course, false, $cm);
+
+$PAGE->set_url('/mod/recalluser/view.php', ['id' => $cm->id]);
+$PAGE->set_title(format_string($course->shortname . ': ' . $recalluser->name));
+$PAGE->set_heading(format_string($course->fullname));
+$PAGE->set_context($context);
+
+$form = new mailing_form();
+
+echo $OUTPUT->header();
+echo $OUTPUT->heading(format_string($recalluser->name));
+
+echo
+    '<div id="addMailingAccordion">
+  <div class="card">
+    <div class="card-header" id="addMailingHeading">
+      <h5 class="mb-0">
+        <button class="btn btn-primary" data-toggle="collapse" data-target="#addMailing" aria-expanded="false" aria-controls="addMailing">
+          ' . get_string('createnewmailing', 'mod_recalluser') . '
+        </button>
+      </h5>
+    </div>
+
+    <div id="addMailing" class="collapse" aria-labelledby="addMailingHeading" data-parent="#addMailingAccordion">
+      <div class="card-body">
+        ' . $form->render() . '
+      </div>
+    </div>
+  </div>';
+
+echo $OUTPUT->footer();
