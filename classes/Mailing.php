@@ -37,6 +37,23 @@ require_once $CFG->dirroot . '/mod/recalluser/lib.php';
 /**
  * Class Mailing
  * @package mod_recalluser
+ *
+ * @property int id
+ * @property int recalluserid
+ * @property string mailingname
+ * @property string mailinglang
+ * @property string mailingsubject
+ * @property string mailingcontent
+ * @property int mailingcontentformat
+ * @property int mailingmodle
+ * @property int mailingdelay
+ * @property int mailingstatus
+ * @property int targetmoduleid
+ * @property bool targetmodulestatus
+ * @property int customcertmoduleid
+ * @property int starttime
+ * @property int timecreated
+ * @property int timemodified
  */
 class Mailing {
 
@@ -77,7 +94,7 @@ class Mailing {
         global $DB;
 
         $records = [];
-        $rs = $DB->get_recordset('recalluser_mailing', ['recalluserid' => $recalluser_id], 'ORDER BY id');
+        $rs = $DB->get_recordset('recalluser_mailing', ['recalluserid' => $recalluser_id], 'id ASC');
         foreach ($rs as $record) {
             $record = Mailing::format($record);
             $records[$record->id] = $record;
