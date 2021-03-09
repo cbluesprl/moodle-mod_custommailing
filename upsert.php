@@ -42,6 +42,7 @@ $recalluser = $DB->get_record("recalluser", ['id' => $cm->instance], '*', MUST_E
 $context = context_module::instance($cm->id);
 
 require_login($course, false, $cm);
+require_capability('mod/recalluser:manage', $context);
 
 $PAGE->set_title(format_string($course->shortname . ': ' . $recalluser->name));
 $PAGE->set_heading(format_string($course->fullname));
@@ -81,7 +82,6 @@ if ($form->is_cancelled()) {
     }
     $mailing->mailingstatus = (bool) $data->mailingstatus;
     $mailing->targetmoduleid = (int) $data->targetmoduleid;
-    $mailing->targetmodulestatus = (bool) $data->targetmodulestatus;
     $mailing->starttime = $data->starttimehour * 3600 + $data->starttimeminute * 60;
     if (!empty($data->customcert)) {
         $mailing->customcertmoduleid = (int) $data->customcert;

@@ -91,19 +91,9 @@ class mailing_form extends moodleform
         $mform->addRule('mailinglang', get_string('required'), 'required');
 
         // Add target activity
-        $mform->addElement('select', 'targetmoduleid', get_string('targetmoduleid', 'mod_recalluser'), $this->getActivities());
+        $mform->addElement('select', 'targetmoduleid', get_string('targetmoduleid', 'mod_recalluser'), recalluser_get_activities());
         $mform->setType('targetmoduleid', PARAM_INT);
         $mform->addRule('targetmoduleid', get_string('required'), 'required');
-
-        // Add target activity status
-        $mform->addElement(
-            'select', 'targetmodulestatus', get_string('targetmodulestatus', 'mod_recalluser'), [
-                COMPLETION_INCOMPLETE => get_string('mailingtargetactivitystatusincomplete', 'mod_recalluser'),
-                COMPLETION_COMPLETE => get_string('mailingtargetactivitystatuscomplete', 'mod_recalluser')
-            ]
-        );
-        $mform->setType('targetmodulestatus', PARAM_BOOL);
-        $mform->addRule('targetmodulestatus', get_string('required'), 'required');
 
         // Add mode
         $mailing_mode = [];
@@ -118,11 +108,12 @@ class mailing_form extends moodleform
                 MAILING_MODE_DAYSFROMLASTLAUNCH => get_string('lastlaunch', 'mod_recalluser'),
             ]
         );
+        $mailing_mode[] =& $mform->createElement('static', '', null, get_string('andtargetactivitynotcompleted', 'mod_recalluser'));
         $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_recalluser'), ' ', false);
         $mform->addElement('radio', 'mailingmode', null, get_string('atfirstlaunch', 'mod_recalluser'), MAILING_MODE_FIRSTLAUNCH);
         $mform->addElement('radio', 'mailingmode', null, get_string('atcourseenrol', 'mod_recalluser'), MAILING_MODE_REGISTRATION);
         $mform->addElement('radio', 'mailingmode', null, get_string('atactivitycompleted', 'mod_recalluser'), MAILING_MODE_COMPLETE);
-        $mform->setType('targetmodulestatus', PARAM_INT);
+        $mform->setType('mailingmode', PARAM_INT);
         $mform->setDefault('mailingmode', 0);
         $mform->addRule('mailingmodegroup', get_string('required'), 'required');
 
@@ -141,7 +132,7 @@ class mailing_form extends moodleform
         $start_time[] =& $mform->createElement('select', 'starttimehour', '', $hours);
         $start_time[] =& $mform->createElement('static', '', null, '&nbsp:&nbsp;');
         $start_time[] =& $mform->createElement('select', 'starttimeminute', '', $minutes);
-        $mform->addGroup($start_time, 'starttime', get_string('sendingtime', 'mod_recalluser'), ' ', false);
+        $mform->addGroup($start_time, 'starttime', get_string('starttime', 'mod_recalluser'), ' ', false);
         $mform->addRule('starttime', get_string('required'), 'required');
 
         // Add status
@@ -171,32 +162,12 @@ class mailing_form extends moodleform
     public function validation($data, $files)
     {
         $errors = parent::validation($data, $files);
-        if (empty($this->getActivities()[(int) $data['targetmoduleid']])) {
+        if (empty(recalluser_get_activities()[(int) $data['targetmoduleid']])) {
             $errors['targetmoduleid'] = get_string('targetactivitynotfound', 'mod_recalluser');
         }
 
-        // TODO : validate custom cert
-        // TODO : validate the consistency of the choices (targetactivitystatus && mailingmode)
+        // TODO : validate custom cert (/!\ option "mode")
 
         return $errors;
-    }
-
-    /**
-     * @return array
-     * @throws moodle_exception
-     */
-    protected function getActivities()
-    {
-        global $COURSE, $PAGE;
-        $course_module_context = $PAGE->context;
-
-        $activities = [];
-        foreach ($modinfo = get_fast_modinfo($COURSE)->get_cms() as $cm) {
-            if ($cm->id != $course_module_context->instanceid) {
-                $activities[(int) $cm->id] = format_string($cm->name);
-            }
-        }
-
-        return $activities;
     }
 }

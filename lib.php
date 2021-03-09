@@ -115,3 +115,66 @@ function recalluser_delete_instance($id) {
 
     return $result;
 }
+
+/**
+ * @param $feature
+ * @return bool|null
+ */
+function recalluser_supports($feature) {
+    switch($feature) {
+        case FEATURE_GRADE_HAS_GRADE:
+            return false;
+        case FEATURE_GRADE_OUTCOMES:
+            return false;
+        case FEATURE_ADVANCED_GRADING:
+            return false;
+        case FEATURE_CONTROLS_GRADE_VISIBILITY:
+            return false;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return false;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return false;
+        case FEATURE_NO_VIEW_LINK:
+            return false;
+        case FEATURE_IDNUMBER:
+            return true;
+        case FEATURE_GROUPS:
+            return false;
+        case FEATURE_GROUPINGS:
+            return false;
+        case FEATURE_MOD_INTRO:
+            return false;
+        case FEATURE_MODEDIT_DEFAULT_COMPLETION:
+            return false;
+        case FEATURE_COMMENT:
+            return false;
+        case FEATURE_RATE:
+            return false;
+        case FEATURE_BACKUP_MOODLE2:
+            return true;
+        case FEATURE_SHOW_DESCRIPTION:
+            return false;
+        case FEATURE_USES_QUESTIONS:
+            return false;
+        default:
+            return false;
+    }
+}
+
+/**
+ * @return array
+ * @throws moodle_exception
+ */
+function recalluser_get_activities () {
+    global $COURSE, $PAGE;
+    $course_module_context = $PAGE->context;
+
+    $activities = [];
+    foreach ($modinfo = get_fast_modinfo($COURSE)->get_cms() as $cm) {
+        if ($cm->id != $course_module_context->instanceid) {
+            $activities[(int) $cm->id] = format_string($cm->name);
+        }
+    }
+
+    return $activities;
+}

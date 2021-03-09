@@ -61,4 +61,12 @@ class mod_recalluser_mod_form extends moodleform_mod {
         // Add standard buttons, common to all modules.
         $this->add_action_buttons();
     }
+
+    /**
+     * @param array|stdClass $default_values
+     */
+    public function set_data($default_values) {
+        $default_values->visible = false; // Force visible to false to hide the activity from students
+        parent::set_data($default_values);
+    }
 }
