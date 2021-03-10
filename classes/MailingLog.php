@@ -101,7 +101,6 @@ class MailingLog
         $record->emailtouserid = (int) $record->emailtouserid;
         $record->emailstatus = (int) $record->emailstatus;
         $record->timecreated = (int) $record->timecreated;
-        $record->timecreated = (int) $record->timecreated;
         $record->timemodified = (int) $record->timemodified;
 
         return $record;
