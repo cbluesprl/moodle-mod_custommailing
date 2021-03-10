@@ -58,3 +58,4 @@ $string['updatemailing'] = "Mettre à jour le mailing";
 $string['confirmdelete'] = 'Êtes-vous sûr de supprimer : {$a}';
 $string['mailingdeleted'] = 'Mailing supprimé';
 $string['andtargetactivitynotcompleted'] = "et que l'activité déclencheuse n'est pas déjà terminée par l'utilisateur";
+$string['crontask'] = "Tâche programmée";

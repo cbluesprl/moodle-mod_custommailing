@@ -138,6 +138,24 @@ class Mailing {
     }
 
     /**
+     * @return array
+     * @throws dml_exception
+     */
+    public static function getAllToSend() {
+        global $DB;
+
+        $records = [];
+        $rs = $DB->get_recordset('recalluser_mailing', ['mailingstatus' => MAILING_STATUS_ENABLED]);
+        foreach ($rs as $record) {
+            $record = Mailing::format($record);
+            $records[$record->id] = $record;
+        }
+        $rs->close();
+
+        return $records;
+    }
+
+    /**
      * @param stdClass $record
      * @return stdClass
      */

@@ -25,6 +25,7 @@
 
 use core\notification;
 use mod_recalluser\Mailing;
+use mod_recalluser\MailingLog;
 
 define('MAILING_MODE_NONE', 0);
 define('MAILING_MODE_FIRSTLAUNCH', 1);
@@ -177,4 +178,144 @@ function recalluser_get_activities () {
     }
 
     return $activities;
+}
+
+/**
+ * @throws dml_exception
+ */
+function recalluser_logs_generate() {
+
+    global $DB;
+
+    $mailings = Mailing::getAllToSend();
+    foreach ($mailings as $mailing) {
+        if ($mailing->mailingmode == MAILING_MODE_FIRSTLAUNCH) {
+            //ToDo : specific Scorm & Quiz action instead of course_module 'viewed'
+            $sql = "SELECT * 
+                FROM {user} u
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->cmid AND lsl.action = 'viewed'
+                ORDER BY lsl.id
+                ";
+        } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION) {
+            $sql = "SELECT * 
+                FROM {user} u
+                JOIN {course_modules} cm ON cm.id = $mailing->cmid
+                JOIN {course} c ON c.id = cm.course
+                JOIN {enrol} e ON e.courseid = c.id
+                JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id
+                WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+                ";
+        } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE) {
+            $sql = "SELECT * 
+                FROM {user} u
+                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->cmid
+                ";
+        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE) {
+            $sql = "SELECT * 
+                FROM {user} u
+                JOIN {course_modules} cm ON cm.id = $mailing->cmid
+                JOIN {course} c ON c.id = cm.course
+                JOIN {enrol} e ON e.courseid = c.id
+                JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id
+                WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+                ";
+        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION) {
+            $sql = "SELECT * 
+                FROM {user} u
+                JOIN {course_modules} cm ON cm.id = $mailing->cmid
+                JOIN {course} c ON c.id = cm.course
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
+                ";
+        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH) {
+            //ToDo : specific Scorm & Quiz action instead of course_module 'viewed'
+            $sql = "SELECT * 
+                FROM {user} u
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->cmid AND lsl.action = 'viewed'
+                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+                ORDER BY lsl.id
+                ";
+        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH) {
+            //ToDo : specific Scorm & Quiz action instead of course_module 'viewed'
+            $sql = "SELECT * 
+                FROM {user} u
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->cmid AND lsl.action = 'viewed'
+                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+                ORDER BY lsl.id ASC
+                ";
+        }
+        $users = $DB->get_records_sql($sql);
+        foreach ($users as $user) {
+            if (!$DB->get_record('recalluser_logs', ['mailingid' => $mailing->id, 'emailto' => $user->id])) {
+                $record = new stdClass();
+                $record->recallusermailingid = (int) $mailing->id;
+                $record->emailtouserid = (int) $user->id;
+                $record->emailstatus = MAILING_LOG_PROCESSING;
+                $record->timecreated = time();
+                MailingLog::create($record);
+            }
+        }
+    }
+}
+
+/**
+ * Process recalluser_logs MAILING_LOG_SENT records
+ * Send email to each user
+ *
+ * @throws dml_exception
+ */
+function recalluser_crontask() {
+
+    global $DB;
+
+    recalluser_logs_generate();
+
+    $ids_to_update = [];
+
+    $sql = "SELECT u.*, rm.mailingsubject, rm.mailingcontent, rl.id as logid
+            FROM {user} u
+            JOIN {recalluser_logs} rl ON rl.emailto = u.id 
+            JOIN {recalluser_mailing} rm ON rm.id = rl.mailingid
+            WHERE rl.emailstatus < " . MAILING_LOG_SENT;
+    $users = $DB->get_recordset_sql($sql);
+    foreach ($users as $user) {
+        //ToDo : manage attachments
+        email_to_user($user, core_user::get_support_user(), $user->mailingsubject, strip_tags($user->mailingcontent), $user->mailingcontent);
+        $ids_to_update[] = $user->logid;
+    }
+    $users->close();
+
+    // Set emailstatus to MAILING_LOG_SENT on each sended email
+    $ids = implode(",", array_unique($ids_to_update));
+    $DB->execute("UPDATE {recalluser_logs} SET emailstatus = " . MAILING_LOG_SENT . " WHERE id IN ($ids)");
+
+}
+
+function generatecertificate() {
+
+    global $DB;
+
+    $sql = 'select * from mdl_customcert_issues where userid = :userid'; //check if user click on "view cert button"
+
+    $emailotherslengthsql = $DB->sql_length('c.emailothers');
+    $sql = "SELECT c.*, ct.id as templateid, ct.name as templatename, ct.contextid, co.id as courseid,
+                       co.fullname as coursefullname, co.shortname as courseshortname
+                  FROM {customcert} c
+                  JOIN {customcert_templates} ct
+                    ON c.templateid = ct.id
+                  JOIN {course} co
+                    ON c.course = co.id
+                 WHERE (c.emailstudents = :emailstudents
+                        OR c.emailteachers = :emailteachers
+                        OR $emailotherslengthsql >= 3)";
+    if (!$customcerts = $DB->get_records_sql($sql, array('emailstudents' => 1, 'emailteachers' => 1))) {
+        return;
+    }
+
+    $template = new \stdClass();
+    $template->id = $customcert->templateid;
+    $template->name = $customcert->templatename;
+    $template->contextid = $customcert->contextid;
+    $template = new \mod_customcert\template($template);
+    $filecontents = $template->generate_pdf(false, $user->id, true);
+
 }
