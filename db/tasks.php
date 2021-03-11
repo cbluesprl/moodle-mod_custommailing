@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $tasks = array(
     array(
-        'classname' => 'mod_recalluser\task\send_mails',
+        'classname' => 'mod_recalluser\task\cron_task',
         'blocking' => 0,
         'minute' => '0',
         'hour' => '18',

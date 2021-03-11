@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2021031100;
+$plugin->version = 2021031101;
 $plugin->requires = 2020061500; // Requires 3.9
 $plugin->component = 'mod_recalluser';
 $plugin->release = '0.0.1';
