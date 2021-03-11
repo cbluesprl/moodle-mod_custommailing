@@ -71,10 +71,10 @@ class mailing_form extends moodleform
 
         $source = [];
         $source[0] = get_string('select', 'mod_recalluser');
-        $source[1] = get_string('module', 'mod_recalluser');
-        $source[2] = get_string('course', 'mod_recalluser');
+        $source[MAILING_SOURCE_MODULE] = get_string('module', 'mod_recalluser');
+        $source[MAILING_SOURCE_COURSE] = get_string('course', 'mod_recalluser');
         if ($custom_cert) {
-            $source[3] = get_string('certificate', 'mod_recalluser');
+            $source[MAILING_SOURCE_CERT] = get_string('certificate', 'mod_recalluser');
         }
 
         // Add id
@@ -107,7 +107,6 @@ class mailing_form extends moodleform
         // Add target activity
         $mform->addElement('select', 'targetmoduleid', get_string('targetmoduleid', 'mod_recalluser'), recalluser_get_activities());
         $mform->setType('targetmoduleid', PARAM_INT);
-        $mform->addRule('targetmoduleid', get_string('required'), 'required');
         $mform->hideIf('targetmoduleid', 'source', 'noteq', 1);
 
         // Add custom cert
@@ -136,7 +135,7 @@ class mailing_form extends moodleform
         $mform->hideIf('mailingmodemodule', 'source', 'noteq', 1);
         $mform->hideIf('mailingdelaymodule', 'source', 'noteq', 1);
         $mform->hideIf('mailingmodemoduleoption', 'source', 'noteq', 1);
-
+        $mform->hideIf('mailingmodemodulegroup', 'source', 'noteq', 1);
 
         $mailing_mode[] =& $mform->createElement('radio', 'mailingmode', null, '', 'option');
         $mailing_mode[] =& $mform->createElement('select', 'mailingdelay', null, $days);
@@ -155,6 +154,7 @@ class mailing_form extends moodleform
         $mform->hideIf('mailingmode', 'source', 'noteq', 2);
         $mform->hideIf('mailingdelay', 'source', 'noteq', 2);
         $mform->hideIf('mailingmodeoption', 'source', 'noteq', 2);
+        $mform->hideIf('mailingmodegroup', 'source', 'noteq', 2);
 
         // Add subject
         $mform->addElement('text', 'mailingsubject', get_string('mailingsubject', 'mod_recalluser'));
@@ -198,9 +198,9 @@ class mailing_form extends moodleform
     public function validation($data, $files)
     {
         $errors = parent::validation($data, $files);
-        if (empty(recalluser_get_activities()[(int) $data['targetmoduleid']])) {
-            $errors['targetmoduleid'] = get_string('targetactivitynotfound', 'mod_recalluser');
-        }
+//        if (empty(recalluser_get_activities()[(int) $data['targetmoduleid']])) {
+//            $errors['targetmoduleid'] = get_string('targetactivitynotfound', 'mod_recalluser');
+//        }
 
         // TODO : validate custom cert (/!\ option "mode")
 

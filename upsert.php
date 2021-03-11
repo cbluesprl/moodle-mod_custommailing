@@ -114,9 +114,16 @@ if ($form->is_cancelled()) {
         $data->mailingcontent = $mailingcontenteditor;
         $data->starttimehour = floor($data->starttime / 3600);
         $data->starttimeminute = floor(($data->starttime / 60) % 60);
-        if (empty($data->customcert) && in_array($data->mailingmode, [MAILING_MODE_DAYSFROMINSCRIPTIONDATE, MAILING_MODE_DAYSFROMLASTCONNECTION, MAILING_MODE_DAYSFROMFIRSTLAUNCH, MAILING_MODE_DAYSFROMLASTLAUNCH])) {
+        if (empty($data->customcertmoduleid) && in_array($data->mailingmode, [MAILING_MODE_DAYSFROMINSCRIPTIONDATE, MAILING_MODE_DAYSFROMLASTCONNECTION, MAILING_MODE_DAYSFROMFIRSTLAUNCH, MAILING_MODE_DAYSFROMLASTLAUNCH])) {
             $data->mailingmode = 'option';
             $data->mailingmodeoption = $mailing->mailingmode;
+        }
+        if (!empty($data->targetmoduleid)) {
+            $data->source = MAILING_SOURCE_MODULE;
+        } elseif (!empty($data->customcertmoduleid)) {
+            $data->source = MAILING_SOURCE_CERT;
+        } else {
+            $data->source = MAILING_SOURCE_COURSE;
         }
         $form->set_data($data);
     }

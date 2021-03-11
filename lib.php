@@ -45,6 +45,10 @@ define('MAILING_LOG_PROCESSING', 1);
 define('MAILING_LOG_SENT', 2);
 define('MAILING_LOG_FAILED', 3);
 
+define('MAILING_SOURCE_MODULE', 1);
+define('MAILING_SOURCE_COURSE', 2);
+define('MAILING_SOURCE_CERT', 3);
+
 /**
  * @param $recalluser
  * @return bool|int
