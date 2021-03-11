@@ -50,7 +50,7 @@ class MailingLog
 
         $record->timecreated = $record->timemodified = time();
 
-        return $DB->insert_record('reacalluser_log', $record);
+        return $DB->insert_record('recalluser_log', $record);
     }
 
     /**
@@ -68,7 +68,7 @@ class MailingLog
         }
 
         $records = [];
-        $rs = $DB->get_recordset('reacalluser_log', $conditions, 'ORDER BY id');
+        $rs = $DB->get_recordset('recalluser_log', $conditions, 'ORDER BY id');
         foreach ($rs as $record) {
             $record = MailingLog::format($record);
             $records[$record->id] = $record;
@@ -88,7 +88,7 @@ class MailingLog
 
         $record->timemodified = time();
 
-        return $DB->update_record('reacalluser_log', $record);
+        return $DB->update_record('recalluser_log', $record);
     }
 
     /**
