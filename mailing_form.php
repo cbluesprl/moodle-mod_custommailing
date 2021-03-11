@@ -121,7 +121,7 @@ class mailing_form extends moodleform
         $mailing_mode_module = [];
 
         $mailing_mode_module[] =& $mform->createElement('radio', 'mailingmodemodule', null, '', 'option');
-        $mailing_mode_module[] =& $mform->createElement('select', 'mailingdelay', null, $days);
+        $mailing_mode_module[] =& $mform->createElement('select', 'mailingdelaymodule', null, $days);
         $mailing_mode_module[] =& $mform->createElement('static', '', null, '&nbsp;' . get_string('daysafter', 'mod_recalluser') . '&nbsp;');
         $mailing_mode_module[] =& $mform->createElement(
             'select', 'mailingmodemoduleoption', null, [

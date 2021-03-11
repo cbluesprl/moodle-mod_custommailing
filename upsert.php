@@ -76,6 +76,9 @@ if ($form->is_cancelled()) {
     if ($data->mailingmode == 'option') {
         $mailing->mailingmode = $data->mailingmodeoption;
         $mailing->mailingdelay = (int) $data->mailingdelay;
+    } elseif ($data->mailingmodemodule == 'option') {
+        $mailing->mailingmode = $data->mailingmodemoduleoption;
+        $mailing->mailingdelay = (int) $data->mailingdelaymodule;
     } else {
         $mailing->mailingmode = (int) $data->mailingmode;
         $mailing->mailingdelay = null;
@@ -84,6 +87,7 @@ if ($form->is_cancelled()) {
     $mailing->targetmoduleid = (int) $data->targetmoduleid;
     $mailing->starttime = $data->starttimehour * 3600 + $data->starttimeminute * 60;
     if (!empty($data->customcert)) {
+        $mailing->mailingmode = MAILING_MODE_SEND_CERTIFICATE;
         $mailing->customcertmoduleid = (int) $data->customcert;
     } else {
         $mailing->customcertmoduleid = null;
@@ -110,7 +114,7 @@ if ($form->is_cancelled()) {
         $data->mailingcontent = $mailingcontenteditor;
         $data->starttimehour = floor($data->starttime / 3600);
         $data->starttimeminute = floor(($data->starttime / 60) % 60);
-        if (in_array($data->mailingmode, [MAILING_MODE_DAYSFROMINSCRIPTIONDATE, MAILING_MODE_DAYSFROMLASTCONNECTION, MAILING_MODE_DAYSFROMFIRSTLAUNCH, MAILING_MODE_DAYSFROMLASTLAUNCH])) {
+        if (empty($data->customcert) && in_array($data->mailingmode, [MAILING_MODE_DAYSFROMINSCRIPTIONDATE, MAILING_MODE_DAYSFROMLASTCONNECTION, MAILING_MODE_DAYSFROMFIRSTLAUNCH, MAILING_MODE_DAYSFROMLASTLAUNCH])) {
             $data->mailingmode = 'option';
             $data->mailingmodeoption = $mailing->mailingmode;
         }
