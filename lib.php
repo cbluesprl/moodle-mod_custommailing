@@ -182,6 +182,24 @@ function recalluser_get_activities () {
 }
 
 /**
+ * @param int $courseid
+ * @return array
+ * @throws dml_exception
+ */
+function recalluser_getcustomcertsfromcourse($courseid)
+{
+    global $DB;
+
+    $certs = [];
+    $result = $DB->get_records('customcert', ['courseid' => $courseid]);
+    foreach ($result as $cert) {
+        $certs[(int) $cert->id] = format_string($cert->name);
+    }
+
+    return $certs;
+}
+
+/**
  * @throws dml_exception
  */
 function recalluser_logs_generate() {

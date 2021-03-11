@@ -141,7 +141,10 @@ class mailing_form extends moodleform
         $mform->setDefault('mailingstatus', 1);
 
         // Add custom cert
-        // TODO : add custom cert
+        if (core_plugin_manager::instance()->get_plugin_info('mod_customcert')) {
+            $mform->addElement('select', 'certid', get_string('certid', 'mod_recalluser'), recalluser_getcustomcertsfromcourse($COURSE->id));
+            $mform->setType('certid', PARAM_INT);
+        }
 
         // Add standard buttons, common to all modules.
         if (!empty($this->_customdata['mailingid'])) {
