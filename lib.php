@@ -220,13 +220,13 @@ function recalluser_logs_generate() {
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
                 ORDER BY lsl.id
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($COURSE->id) && !empty($mailing->mailingdelay)) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($COURSE->id)) {
             //ToDo : check if user enrolled with different enrol methods to same course
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {user_enrolments} ue ON ue.userid = u.id
-                JOIN {enrol} e ON e.id = ue.enrolid AND e.courseid = $COURSE->id
-                WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+                JOIN {enrol} e ON e.id = ue.enrolid 
+                WHERE e.courseid = $COURSE->id
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE && !empty($mailing->targetmoduleid)) {
             $sql = "SELECT u.*
@@ -310,7 +310,6 @@ function recalluser_crontask() {
             WHERE rl.emailstatus < " . MAILING_LOG_SENT;
     $logs = $DB->get_recordset_sql($sql);
     foreach ($logs as $log) {
-        //ToDo : manage attachments other than certificate
         $attachment = null;
         if (!empty($log->customcertmoduleid)) {
             $attachment = recalluser_getcertificate($log->userid, $log->customcertmoduleid);
@@ -321,8 +320,10 @@ function recalluser_crontask() {
     $logs->close();
 
     // Set emailstatus to MAILING_LOG_SENT on each sended email
-    $ids = implode(",", array_unique($ids_to_update));
-    $DB->execute("UPDATE {recalluser_logs} SET emailstatus = " . MAILING_LOG_SENT . " WHERE id IN ($ids)");
+    if (is_array($ids_to_update) && count($ids_to_update)) {
+        $ids = implode(",", array_unique($ids_to_update));
+        $DB->execute("UPDATE {recalluser_logs} SET emailstatus = " . MAILING_LOG_SENT . " WHERE id IN ($ids)");
+    }
 
 }
 
