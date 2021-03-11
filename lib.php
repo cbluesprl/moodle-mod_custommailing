@@ -225,7 +225,7 @@ function recalluser_logs_generate() {
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {user_enrolments} ue ON ue.userid = u.id
-                JOIN {enrol} e ON e.enrolid = ue.id AND e.courseid = $COURSE->id
+                JOIN {enrol} e ON e.id = ue.enrolid AND e.courseid = $COURSE->id
                 WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE && !empty($mailing->targetmoduleid)) {
