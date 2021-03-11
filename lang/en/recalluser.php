@@ -59,3 +59,4 @@ $string['confirmdelete'] = 'Are you sure to delete this mailing : {$a}';
 $string['mailingdeleted'] = 'Mailing deleted';
 $string['andtargetactivitynotcompleted'] = 'and target activity is not completed by the user';
 $string['crontask'] = "cron task";
+$string['certid'] = "certificate";
