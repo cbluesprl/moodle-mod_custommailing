@@ -73,10 +73,10 @@ if ($form->is_cancelled()) {
     $mailing->mailingsubject = $data->mailingsubject;
     $mailing->mailingcontent = $data->mailingcontent['text'];
     $mailing->mailingcontentformat = $data->mailingcontent['format'];
-    if ($data->mailingmode == 'option') {
+    if ($data->mailingmode == 'option' && !empty($data->mailingmodeoption)) {
         $mailing->mailingmode = $data->mailingmodeoption;
         $mailing->mailingdelay = (int) $data->mailingdelay;
-    } elseif ($data->mailingmodemodule == 'option') {
+    } elseif ($data->mailingmodemodule == 'option' && !empty($data->mailingmodemoduleoption)) {
         $mailing->mailingmode = $data->mailingmodemoduleoption;
         $mailing->mailingdelay = (int) $data->mailingdelaymodule;
     } else {
@@ -84,6 +84,9 @@ if ($form->is_cancelled()) {
         $mailing->mailingdelay = null;
     }
     $mailing->mailingstatus = (bool) $data->mailingstatus;
+    if (empty($data->targetmoduleid)) {
+        $data->targetmoduleid = 0;
+    }
     $mailing->targetmoduleid = (int) $data->targetmoduleid;
     $mailing->starttime = $data->starttimehour * 3600 + $data->starttimeminute * 60;
     if (!empty($data->customcert)) {
