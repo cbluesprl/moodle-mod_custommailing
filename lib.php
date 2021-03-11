@@ -266,6 +266,7 @@ function recalluser_logs_generate() {
                 ORDER BY lsl.id ASC
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE) {
+            recalluser_certifications($mailing->certid);
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = $mailing->certid
@@ -367,4 +368,53 @@ function recalluser_getcertificate($userid, $certid) {
     $attach->filename = $filename;
 
     return $attach;
+}
+
+/**
+ * @param int $customcertid
+ * @throws coding_exception
+ * @throws dml_exception
+ * @throws moodle_exception
+ */
+function recalluser_certifications($customcertid)
+{
+    global $DB, $COURSE;
+
+    $sql = "SELECT u.*
+                FROM {user} u
+                JOIN {course} c ON c.id = :courseid
+                JOIN {enrol} e ON e.courseid = c.id
+                JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id";
+
+    $users = $DB->get_records_sql($sql, ['courseid' => $COURSE->id]);
+    foreach ($users as $user) {
+        recalluser_certification($user->id, $customcertid);
+    }
+}
+
+/**
+ * @param int $userid
+ * @param int $customcertid
+ * @throws coding_exception
+ * @throws dml_exception
+ * @throws moodle_exception
+ */
+function recalluser_certification($userid, $customcertid)
+{
+    global $DB, $COURSE;
+
+    $cm = get_coursemodule_from_id('customcert', $customcertid, $COURSE->id, false, MUST_EXIST);
+    $modinfo = get_fast_modinfo($COURSE->id);
+    $cminfo = $modinfo->get_cm($cm->id);
+    $ainfomod = new \core_availability\info_module($cminfo);
+
+    if ($ainfomod->is_available($availabilityinfo, false, $userid)) {
+        $customcertissue = new stdClass();
+        $customcertissue->customcertid = $customcertid;
+        $customcertissue->userid = $userid;
+        $customcertissue->code = \mod_customcert\certificate::generate_code();
+        $customcertissue->timecreated = time();
+
+        $DB->insert_record('customcert_issues', $customcertissue);
+    }
 }
