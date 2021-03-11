@@ -191,7 +191,7 @@ function recalluser_getcustomcertsfromcourse($courseid)
     global $DB;
 
     $certs = [];
-    $result = $DB->get_records('customcert', ['courseid' => $courseid]);
+    $result = $DB->get_records('customcert', ['course' => $courseid]);
     foreach ($result as $cert) {
         $certs[(int) $cert->id] = format_string($cert->name);
     }
