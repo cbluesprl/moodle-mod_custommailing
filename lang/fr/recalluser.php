@@ -60,6 +60,7 @@ $string['mailingdeleted'] = 'Mailing supprimé';
 $string['andtargetactivitynotcompleted'] = "et que l'activité déclencheuse n'est pas déjà terminée par l'utilisateur";
 $string['crontask'] = "Tâche programmée";
 $string['select'] = "Sélectionnez";
+$string['selectsource'] = "Source";
 $string['module'] = "Activité";
 $string['course'] = "Formation";
 $string['certificate'] = "Certificat";

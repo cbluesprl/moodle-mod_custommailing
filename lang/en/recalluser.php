@@ -60,6 +60,7 @@ $string['mailingdeleted'] = 'Mailing deleted';
 $string['andtargetactivitynotcompleted'] = 'and target activity is not completed by the user';
 $string['crontask'] = "cron task";
 $string['select'] = "select";
+$string['selectsource'] = "source";
 $string['module'] = "module";
 $string['course'] = "course";
 $string['certificate'] = "certificate";
