@@ -273,14 +273,16 @@ function recalluser_logs_generate() {
         }
         if ($sql) {
             $users = $DB->get_records_sql($sql);
-            foreach ($users as $user) {
-                if (!$DB->get_record('recalluser_logs', ['recallusermailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
-                    $record = new stdClass();
-                    $record->recallusermailingid = (int) $mailing->id;
-                    $record->emailtouserid = (int) $user->id;
-                    $record->emailstatus = MAILING_LOG_PROCESSING;
-                    $record->timecreated = time();
-                    MailingLog::create($record);
+            if (is_array($users)) {
+                foreach ($users as $user) {
+                    if (!$DB->get_record('recalluser_logs', ['recallusermailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
+                        $record = new stdClass();
+                        $record->recallusermailingid = (int) $mailing->id;
+                        $record->emailtouserid = (int) $user->id;
+                        $record->emailstatus = MAILING_LOG_PROCESSING;
+                        $record->timecreated = time();
+                        MailingLog::create($record);
+                    }
                 }
             }
         }
@@ -301,7 +303,7 @@ function recalluser_crontask() {
 
     $ids_to_update = [];
 
-    $sql = "SELECT u.*, u.id as userid, rm.mailingsubject, rm.mailingcontent, rl.id as logid, rm.certid
+    $sql = "SELECT u.*, u.id as userid, rm.mailingsubject, rm.mailingcontent, rl.id as logid, rm.customcertmoduleid
             FROM {user} u
             JOIN {recalluser_logs} rl ON rl.emailto = u.id 
             JOIN {recalluser_mailing} rm ON rm.id = rl.mailingid
@@ -310,8 +312,8 @@ function recalluser_crontask() {
     foreach ($logs as $log) {
         //ToDo : manage attachments other than certificate
         $attachment = null;
-        if (!empty($log->certid)) {
-            $attachment = recalluser_getcertificate($log->userid, $log->certid);
+        if (!empty($log->customcertmoduleid)) {
+            $attachment = recalluser_getcertificate($log->userid, $log->customcertmoduleid);
         }
         email_to_user($log, core_user::get_support_user(), $log->mailingsubject, strip_tags($log->mailingcontent), $log->mailingcontent, $attachment->file, $attachment->filename);
         $ids_to_update[] = $log->logid;
@@ -328,11 +330,11 @@ function recalluser_crontask() {
  * get certificate (REQUIRE mod/customcert)
  *
  * @param int $userid
- * @param int $certid
+ * @param int $customcertid
  * @return stdClass
  * @throws dml_exception
  */
-function recalluser_getcertificate($userid, $certid) {
+function recalluser_getcertificate($userid, $customcertid) {
 
     global $DB;
 
@@ -343,7 +345,7 @@ function recalluser_getcertificate($userid, $certid) {
             JOIN {course} co ON c.course = co.id
             JOIN {customcert_issues} ci ON ci.customcertid = c.id
             WHERE ci.userid = :userid AND c.id = :certid";
-    $customcert = $DB->get_record_sql($sql, ['userid' => $userid, 'certid' => $certid]);
+    $customcert = $DB->get_record_sql($sql, ['userid' => $userid, 'certid' => $customcertid]);
 
     $template = new \stdClass();
     $template->id = $customcert->templateid;
