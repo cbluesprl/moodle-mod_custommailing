@@ -306,7 +306,7 @@ function recalluser_crontask() {
     $sql = "SELECT u.*, u.id as userid, rm.mailingsubject, rm.mailingcontent, rl.id as logid, rm.customcertmoduleid
             FROM {user} u
             JOIN {recalluser_logs} rl ON rl.emailtouserid = u.id 
-            JOIN {recalluser_mailing} rm ON rm.id = rl.mailingid
+            JOIN {recalluser_mailing} rm ON rm.id = rl.recallusermailingid
             WHERE rl.emailstatus < " . MAILING_LOG_SENT;
     $logs = $DB->get_recordset_sql($sql);
     foreach ($logs as $log) {
