@@ -208,32 +208,32 @@ function recalluser_getcustomcertsfromcourse($courseid)
  */
 function recalluser_logs_generate() {
 
-    global $DB;
+    global $DB, $COURSE;
 
     $mailings = Mailing::getAllToSend();
     foreach ($mailings as $mailing) {
-        if ($mailing->mailingmode == MAILING_MODE_FIRSTLAUNCH) {
+        $sql = false;
+        if ($mailing->mailingmode == MAILING_MODE_FIRSTLAUNCH && !empty($mailing->targetmoduleid)) {
             //ToDo : specific Scorm & Quiz action instead of course_module 'viewed'
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
                 ORDER BY lsl.id
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($COURSE->id) && !empty($mailing->mailingdelay)) {
             $sql = "SELECT u.*
                 FROM {user} u
-                JOIN {course_modules} cm ON cm.id = $mailing->targetmoduleid
-                JOIN {course} c ON c.id = cm.course
+                JOIN {course} c ON c.id = $COURSE->id
                 JOIN {enrol} e ON e.courseid = c.id
                 JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id
                 WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE && !empty($mailing->targetmoduleid)) {
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {course_modules} cm ON cm.id = $mailing->targetmoduleid
@@ -242,14 +242,13 @@ function recalluser_logs_generate() {
                 JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id
                 WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($COURSE->id)) {
             $sql = "SELECT u.*
                 FROM {user} u
-                JOIN {course_modules} cm ON cm.id = $mailing->targetmoduleid
-                JOIN {course} c ON c.id = cm.course
+                JOIN {course} c ON c.id = $COURSE->id
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
             //ToDo : specific Scorm & Quiz action instead of course_module 'viewed'
             $sql = "SELECT u.*
                 FROM {user} u
@@ -257,7 +256,7 @@ function recalluser_logs_generate() {
                 WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
                 ORDER BY lsl.id
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
             //ToDo : specific Scorm & Quiz action instead of course_module 'viewed'
             $sql = "SELECT u.*
                 FROM {user} u
@@ -265,22 +264,24 @@ function recalluser_logs_generate() {
                 WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
                 ORDER BY lsl.id ASC
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
             recalluser_certifications($mailing->customcertmoduleid);
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = $mailing->customcertmoduleid
                 ";
         }
-        $users = $DB->get_records_sql($sql);
-        foreach ($users as $user) {
-            if (!$DB->get_record('recalluser_logs', ['mailingid' => $mailing->id, 'emailto' => $user->id])) {
-                $record = new stdClass();
-                $record->recallusermailingid = (int) $mailing->id;
-                $record->emailtouserid = (int) $user->id;
-                $record->emailstatus = MAILING_LOG_PROCESSING;
-                $record->timecreated = time();
-                MailingLog::create($record);
+        if ($sql) {
+            $users = $DB->get_records_sql($sql);
+            foreach ($users as $user) {
+                if (!$DB->get_record('recalluser_logs', ['recallusermailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
+                    $record = new stdClass();
+                    $record->recallusermailingid = (int) $mailing->id;
+                    $record->emailtouserid = (int) $user->id;
+                    $record->emailstatus = MAILING_LOG_PROCESSING;
+                    $record->timecreated = time();
+                    MailingLog::create($record);
+                }
             }
         }
     }
