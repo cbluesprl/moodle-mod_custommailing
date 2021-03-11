@@ -221,11 +221,11 @@ function recalluser_logs_generate() {
                 ORDER BY lsl.id
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($COURSE->id) && !empty($mailing->mailingdelay)) {
+            //ToDo : check if user enrolled with different enrol methods to same course
             $sql = "SELECT u.*
                 FROM {user} u
-                JOIN {course} c ON c.id = $COURSE->id
-                JOIN {enrol} e ON e.courseid = c.id
-                JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id
+                JOIN {user_enrolments} ue ON ue.userid = u.id
+                JOIN {enrol} e ON e.enrolid = ue.id AND e.courseid = $COURSE->id
                 WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE && !empty($mailing->targetmoduleid)) {
