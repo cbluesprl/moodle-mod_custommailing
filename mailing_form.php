@@ -44,6 +44,7 @@ class mailing_form extends moodleform
 
         $mform =& $this->_form;
         $course_module_context = $PAGE->context;
+        $custom_cert = core_plugin_manager::instance()->get_plugin_info('mod_customcert');
 
         $days = [];
         for ($i = 1; $i <= 30; $i++) {
@@ -68,6 +69,14 @@ class mailing_form extends moodleform
             }
         }
 
+        $source = [];
+        $source[0] = get_string('select', 'mod_recalluser');
+        $source[1] = get_string('module', 'mod_recalluser');
+        $source[2] = get_string('course', 'mod_recalluser');
+        if ($custom_cert) {
+            $source[3] = get_string('certificate', 'mod_recalluser');
+        }
+
         // Add id
         $mform->addElement('hidden', 'id', 'id');
         $mform->setType('id', PARAM_INT);
@@ -90,10 +99,23 @@ class mailing_form extends moodleform
         $mform->setType('mailinglang', PARAM_LANG);
         $mform->addRule('mailinglang', get_string('required'), 'required');
 
+        // Select Source
+        $mform->addElement('select', 'source', get_string('selectsource', 'mod_recalluser'), $source);
+        $mform->setType('source', PARAM_INT);
+        $mform->addRule('source', get_string('required'), 'required');
+
         // Add target activity
         $mform->addElement('select', 'targetmoduleid', get_string('targetmoduleid', 'mod_recalluser'), recalluser_get_activities());
         $mform->setType('targetmoduleid', PARAM_INT);
         $mform->addRule('targetmoduleid', get_string('required'), 'required');
+        $mform->disabledIf('targetmoduleid', 'source', 'noteq', 1);
+
+        // Add custom cert
+        if ($custom_cert) {
+            $mform->addElement('select', 'customcert', get_string('certificate', 'mod_recalluser'), recalluser_getcustomcertsfromcourse($COURSE->id));
+            $mform->setType('customcert', PARAM_INT);
+            $mform->disabledIf('customcert', 'source', 'noteq', 3);
+        }
 
         // Add mode
         $mailing_mode = [];
@@ -115,7 +137,7 @@ class mailing_form extends moodleform
         $mform->addElement('radio', 'mailingmode', null, get_string('atactivitycompleted', 'mod_recalluser'), MAILING_MODE_COMPLETE);
         $mform->setType('mailingmode', PARAM_INT);
         $mform->setDefault('mailingmode', 0);
-        $mform->addRule('mailingmodegroup', get_string('required'), 'required');
+        $mform->disabledIf('mailingmode', 'customcert', 'checked');
 
         // Add subject
         $mform->addElement('text', 'mailingsubject', get_string('mailingsubject', 'mod_recalluser'));
@@ -139,12 +161,6 @@ class mailing_form extends moodleform
         $mform->addElement('selectyesno', 'mailingstatus', get_string('enabled', 'mod_recalluser'));
         $mform->setType('mailingstatus', PARAM_BOOL);
         $mform->setDefault('mailingstatus', 1);
-
-        // Add custom cert
-        if (core_plugin_manager::instance()->get_plugin_info('mod_customcert')) {
-            $mform->addElement('select', 'customcert', get_string('certid', 'mod_recalluser'), recalluser_getcustomcertsfromcourse($COURSE->id));
-            $mform->setType('customcert', PARAM_INT);
-        }
 
         // Add standard buttons, common to all modules.
         if (!empty($this->_customdata['mailingid'])) {
