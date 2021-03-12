@@ -448,6 +448,8 @@ function custommailing_certification($userid, $customcertid, $courseid)
         $customcertissue->code = \mod_customcert\certificate::generate_code();
         $customcertissue->timecreated = time();
 
-        $DB->insert_record('customcert_issues', $customcertissue);
+        if (!$DB->record_exists('customcert_issues', ['userid' => $userid, 'customcertid' => $customcertid])) {
+            $DB->insert_record('customcert_issues', $customcertissue);
+        }
     }
 }
