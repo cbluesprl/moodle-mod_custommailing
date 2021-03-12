@@ -218,6 +218,7 @@ function recalluser_logs_generate() {
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
+                GROUP BY u.id
                 ORDER BY lsl.id
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($COURSE->id)) {
@@ -247,6 +248,7 @@ function recalluser_logs_generate() {
                 FROM {user} u
                 JOIN {course} c ON c.id = $COURSE->id
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
+                GROUP BY u.id
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
             //ToDo : specific Scorm & Quiz action instead of course_module 'viewed'
@@ -254,6 +256,7 @@ function recalluser_logs_generate() {
                 FROM {user} u
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
                 WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+                GROUP BY u.id
                 ORDER BY lsl.id
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
@@ -262,6 +265,7 @@ function recalluser_logs_generate() {
                 FROM {user} u
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
                 WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+                GROUP BY u.id
                 ORDER BY lsl.id ASC
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
