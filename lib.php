@@ -282,7 +282,7 @@ function custommailing_logs_generate() {
                 ORDER BY lsl.id ASC
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
-            custommailing_certifications($mailing->customcertmoduleid);
+            custommailing_certifications($mailing->customcertmoduleid, $mailing->courseid);
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = $mailing->customcertmoduleid
@@ -396,13 +396,14 @@ function custommailing_getcertificate($userid, $customcertid) {
 
 /**
  * @param int $customcertid
+ * @param int $courseid
  * @throws coding_exception
  * @throws dml_exception
  * @throws moodle_exception
  */
-function custommailing_certifications($customcertid)
+function custommailing_certifications($customcertid, $courseid)
 {
-    global $DB, $COURSE;
+    global $DB;
 
     $sql = "SELECT u.*
                 FROM {user} u
@@ -410,25 +411,26 @@ function custommailing_certifications($customcertid)
                 JOIN {enrol} e ON e.courseid = c.id
                 JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id";
 
-    $users = $DB->get_records_sql($sql, ['courseid' => $COURSE->id]);
+    $users = $DB->get_records_sql($sql, ['courseid' => $courseid]);
     foreach ($users as $user) {
-        custommailing_certification($user->id, $customcertid);
+        custommailing_certification($user->id, $customcertid, $courseid);
     }
 }
 
 /**
  * @param int $userid
  * @param int $customcertid
+ * @param int $courseid
  * @throws coding_exception
  * @throws dml_exception
  * @throws moodle_exception
  */
-function custommailing_certification($userid, $customcertid)
+function custommailing_certification($userid, $customcertid, $courseid)
 {
-    global $DB, $COURSE;
+    global $DB;
 
-    $cm = get_coursemodule_from_id('customcert', $customcertid, $COURSE->id, false, MUST_EXIST);
-    $modinfo = get_fast_modinfo($COURSE->id);
+    $cm = get_coursemodule_from_id('customcert', $customcertid, $courseid, false, MUST_EXIST);
+    $modinfo = get_fast_modinfo($courseid);
     $cminfo = $modinfo->get_cm($cm->id);
     $ainfomod = new \core_availability\info_module($cminfo);
 
