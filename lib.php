@@ -265,8 +265,8 @@ function custommailing_logs_generate() {
             //ToDo : other modules than scorm
             $sql = "SELECT u.*
                 FROM {user} u
-                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
+                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
                 WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
                 GROUP BY u.id
                 ORDER BY lsl.id DESC
@@ -275,8 +275,8 @@ function custommailing_logs_generate() {
             //ToDo : other modules than scorm
             $sql = "SELECT u.*
                 FROM {user} u
-                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
+                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
                 WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
                 GROUP BY u.id
                 ORDER BY lsl.id ASC
