@@ -49,7 +49,7 @@ $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
 $mailings = Mailing::getAll($recalluser->id);
-$activities = recalluser_get_activities();
+$activities = recalluser_get_activities(true);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($recalluser->name));

@@ -88,7 +88,8 @@ if ($form->is_cancelled()) {
         $data->targetmoduleid = 0;
     }
     $mailing->targetmoduleid = (int) $data->targetmoduleid;
-    $mailing->starttime = $data->starttimehour * 3600 + $data->starttimeminute * 60;
+    //Todo v2 : starttime
+    $mailing->starttime = 0; //$data->starttimehour * 3600 + $data->starttimeminute * 60;
     if (!empty($data->customcert)) {
         $mailing->mailingmode = MAILING_MODE_SEND_CERTIFICATE;
         $mailing->customcertmoduleid = (int) $data->customcert;
@@ -115,8 +116,9 @@ if ($form->is_cancelled()) {
             'format' => $data->mailingcontentformat
         ];
         $data->mailingcontent = $mailingcontenteditor;
-        $data->starttimehour = floor($data->starttime / 3600);
-        $data->starttimeminute = floor(($data->starttime / 60) % 60);
+        //Todo v2 : starttime
+        $data->starttimehour = 0; //floor($data->starttime / 3600);
+        $data->starttimeminute = 0; //floor(($data->starttime / 60) % 60);
         if (empty($data->customcertmoduleid) && in_array($data->mailingmode, [MAILING_MODE_DAYSFROMINSCRIPTIONDATE, MAILING_MODE_DAYSFROMLASTCONNECTION, MAILING_MODE_DAYSFROMFIRSTLAUNCH, MAILING_MODE_DAYSFROMLASTLAUNCH])) {
             $data->mailingmode = 'option';
             $data->mailingmodeoption = $mailing->mailingmode;

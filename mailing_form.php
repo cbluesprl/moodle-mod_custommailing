@@ -69,9 +69,13 @@ class mailing_form extends moodleform
             }
         }
 
+        $scorm = recalluser_get_activities(true);
+
         $source = [];
         $source[0] = get_string('select', 'mod_recalluser');
-        $source[MAILING_SOURCE_MODULE] = get_string('module', 'mod_recalluser');
+        if ($scorm) {
+            $source[MAILING_SOURCE_MODULE] = get_string('module', 'mod_recalluser');
+        }
         $source[MAILING_SOURCE_COURSE] = get_string('course', 'mod_recalluser');
         if ($custom_cert) {
             $source[MAILING_SOURCE_CERT] = get_string('certificate', 'mod_recalluser');
@@ -108,7 +112,7 @@ class mailing_form extends moodleform
         }
 
         // Add target activity
-        $mform->addElement('select', 'targetmoduleid', get_string('targetmoduleid', 'mod_recalluser'), recalluser_get_activities());
+        $mform->addElement('select', 'targetmoduleid', get_string('targetmoduleid', 'mod_recalluser'), $scorm);
         $mform->setType('targetmoduleid', PARAM_INT);
         $mform->hideIf('targetmoduleid', 'source', 'noteq', 1);
 
@@ -169,12 +173,13 @@ class mailing_form extends moodleform
         $mform->addRule('mailingcontent', get_string('required'), 'required');
 
         // Add start time
-        $start_time = [];
-        $start_time[] =& $mform->createElement('select', 'starttimehour', '', $hours);
-        $start_time[] =& $mform->createElement('static', '', null, '&nbsp:&nbsp;');
-        $start_time[] =& $mform->createElement('select', 'starttimeminute', '', $minutes);
-        $mform->addGroup($start_time, 'starttime', get_string('starttime', 'mod_recalluser'), ' ', false);
-        $mform->addRule('starttime', get_string('required'), 'required');
+        //Todo v2 : starttime
+//        $start_time = [];
+//        $start_time[] =& $mform->createElement('select', 'starttimehour', '', $hours);
+//        $start_time[] =& $mform->createElement('static', '', null, '&nbsp:&nbsp;');
+//        $start_time[] =& $mform->createElement('select', 'starttimeminute', '', $minutes);
+//        $mform->addGroup($start_time, 'starttime', get_string('starttime', 'mod_recalluser'), ' ', false);
+//        $mform->addRule('starttime', get_string('required'), 'required');
 
         // Add status
         $mform->addElement('selectyesno', 'mailingstatus', get_string('enabled', 'mod_recalluser'));

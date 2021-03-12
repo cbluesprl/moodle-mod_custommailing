@@ -171,14 +171,16 @@ function recalluser_supports($feature) {
  * @return array
  * @throws moodle_exception
  */
-function recalluser_get_activities () {
+function recalluser_get_activities ($onlyscorm = false) {
     global $COURSE, $PAGE;
     $course_module_context = $PAGE->context;
 
     $activities = [];
     foreach ($modinfo = get_fast_modinfo($COURSE)->get_cms() as $cm) {
         if ($cm->id != $course_module_context->instanceid) {
-            $activities[(int) $cm->id] = format_string($cm->name);
+            if (!$onlyscorm || ($onlyscorm && $cm->modname == 'scorm')) {
+                $activities[(int) $cm->id] = format_string($cm->name);
+            }
         }
     }
 
@@ -214,7 +216,6 @@ function recalluser_logs_generate() {
     foreach ($mailings as $mailing) {
         $sql = false;
         if ($mailing->mailingmode == MAILING_MODE_FIRSTLAUNCH && !empty($mailing->targetmoduleid)) {
-            //ToDo : specific Scorm & Quiz action instead of course_module 'viewed'
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
@@ -251,23 +252,37 @@ function recalluser_logs_generate() {
                 GROUP BY u.id
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
-            //ToDo : specific Scorm & Quiz action instead of course_module 'viewed'
+            //ToDo : other modules than scorm
             $sql = "SELECT u.*
                 FROM {user} u
-                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
-                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
+                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY)
                 GROUP BY u.id
-                ORDER BY lsl.id
+                ORDER BY lsl.id DESC
                 ";
+//            $sql = "SELECT u.*
+//                FROM {user} u
+//                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
+//                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+//                GROUP BY u.id
+//                ORDER BY lsl.id DESC
+//                ";
         } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
-            //ToDo : specific Scorm & Quiz action instead of course_module 'viewed'
+            //ToDo : other modules than scorm
             $sql = "SELECT u.*
                 FROM {user} u
-                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
-                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
+                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY)
                 GROUP BY u.id
                 ORDER BY lsl.id ASC
                 ";
+//            $sql = "SELECT u.*
+//                FROM {user} u
+//                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
+//                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+//                GROUP BY u.id
+//                ORDER BY lsl.id ASC
+//                ";
         } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
             recalluser_certifications($mailing->customcertmoduleid);
             $sql = "SELECT u.*
