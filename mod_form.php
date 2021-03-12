@@ -52,7 +52,7 @@ class mod_custommailing_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $mform->addElement('checkbox', 'debugmode', get_string('debug', 'mod_custommailing'));
+        $mform->addElement('checkbox', 'debugmode', get_string('debugmode', 'mod_custommailing'));
 
         // Adding the standard "intro" fields.
         $this->standard_intro_elements();

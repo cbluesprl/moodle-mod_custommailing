@@ -73,6 +73,9 @@ if ($form->is_cancelled()) {
     $mailing->mailingsubject = $data->mailingsubject;
     $mailing->mailingcontent = $data->mailingcontent['text'];
     $mailing->mailingcontentformat = $data->mailingcontent['format'];
+    if (empty($data->mailingmodecompletion)) {
+        $data->mailingmodecompletion = 0;
+    }
     $mailing->targetmodulestatus = $data->mailingmodecompletion;
     if ($data->mailingmode == 'option' && !empty($data->mailingmodeoption)) {
         $mailing->mailingmode = $data->mailingmodeoption;
