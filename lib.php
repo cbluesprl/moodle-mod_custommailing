@@ -216,8 +216,8 @@ function custommailing_logs_generate() {
     global $DB, $COURSE;
 
     $config = get_config('custommailing');
-    if ($config->debugmode) {
-        $delay_range = 'HOUR';
+    if (!empty($config->debugmode)) {
+        $delay_range = 'MINUTE';
     } else {
         $delay_range = 'DAY';
     }
@@ -239,6 +239,7 @@ function custommailing_logs_generate() {
                 JOIN {user_enrolments} ue ON ue.userid = u.id
                 JOIN {enrol} e ON e.id = ue.enrolid 
                 WHERE e.courseid = $COURSE->id
+                GROUP BY u.id
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE && !empty($mailing->targetmoduleid)) {
             $sql = "SELECT u.*
