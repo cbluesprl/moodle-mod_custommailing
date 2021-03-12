@@ -85,6 +85,25 @@ class Mailing {
     }
 
     /**
+     * @param int $id
+     * @return stdClass
+     * @throws dml_exception
+     */
+    public static function getWithCourse(int $id) {
+        global $DB;
+
+        $sql = "SELECT cm.*, c.course as courseid
+                FROM {custommailing_mailing} cm
+                JOIN {custommailing} c ON c.id = cm.custommailingid
+                ";
+        $record = $DB->get_record_sql($sql, ['id' => $id]);
+        $record = Mailing::format($record);
+
+        return $record;
+    }
+
+
+    /**
      * @param int $custommailing_id
      * @return stdClass[]
      * @throws dml_exception
@@ -145,7 +164,11 @@ class Mailing {
         global $DB;
 
         $records = [];
-        $rs = $DB->get_recordset('custommailing_mailing', ['mailingstatus' => MAILING_STATUS_ENABLED]);
+        $sql = "SELECT cm.*, c.course as courseid
+                FROM {custommailing_mailing} cm
+                JOIN {custommailing} c ON c.id = cm.custommailingid
+                ";
+        $rs = $DB->get_recordset_sql($sql, ['mailingstatus' => MAILING_STATUS_ENABLED]);
         foreach ($rs as $record) {
             $record = Mailing::format($record);
             $records[$record->id] = $record;

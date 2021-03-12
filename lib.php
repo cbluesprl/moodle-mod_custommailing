@@ -213,7 +213,7 @@ function custommailing_getcustomcertsfromcourse($courseid)
  */
 function custommailing_logs_generate() {
 
-    global $DB, $COURSE;
+    global $DB;
 
     $config = get_config('custommailing');
     if (!empty($config->debugmode)) {
@@ -232,13 +232,13 @@ function custommailing_logs_generate() {
                 GROUP BY u.id
                 ORDER BY lsl.id
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($COURSE->id)) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($mailing->courseid)) {
             //ToDo : check if user enrolled with different enrol methods to same course
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {user_enrolments} ue ON ue.userid = u.id
                 JOIN {enrol} e ON e.id = ue.enrolid 
-                WHERE e.courseid = $COURSE->id
+                WHERE e.courseid = $mailing->courseid
                 GROUP BY u.id
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE && !empty($mailing->targetmoduleid)) {
@@ -255,10 +255,10 @@ function custommailing_logs_generate() {
                 JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id
                 WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay $delay_range))
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($COURSE->id)) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
             $sql = "SELECT u.*
                 FROM {user} u
-                JOIN {course} c ON c.id = $COURSE->id
+                JOIN {course} c ON c.id = $mailing->courseid
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
                 GROUP BY u.id
                 ";
