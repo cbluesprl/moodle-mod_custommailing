@@ -135,7 +135,7 @@ class mailing_form extends moodleform
                 MAILING_MODE_DAYSFROMLASTLAUNCH => get_string('lastlaunch', 'mod_recalluser'),
             ]
         );
-        $mailing_mode_module[] =& $mform->createElement('checkbox', 'mailingmodemodulecompletion', get_string('andtargetactivitynotcompleted', 'mod_recalluser'));
+        $mailing_mode_module[] =& $mform->createElement('checkbox', 'mailingmodecompletion', get_string('andtargetactivitynotcompleted', 'mod_recalluser'));
         $mform->addGroup($mailing_mode_module, 'mailingmodemodulegroup', get_string('sendmailing', 'mod_recalluser'), ' ', false);
         $mform->setType('mailingmodemodule', PARAM_INT);
         $mform->setDefault('mailingmodemodule', 0);
@@ -152,7 +152,6 @@ class mailing_form extends moodleform
                 MAILING_MODE_DAYSFROMLASTCONNECTION => get_string('courselastaccess', 'mod_recalluser'),
             ]
         );
-        $mailing_mode[] =& $mform->createElement('checkbox', 'mailingmodecompletion', get_string('andtargetactivitynotcompleted', 'mod_recalluser'));
         $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_recalluser'), ' ', false);
         $mform->addElement('radio', 'mailingmode', null, get_string('atcourseenrol', 'mod_recalluser'), MAILING_MODE_REGISTRATION);
         $mform->setType('mailingmode', PARAM_INT);

@@ -168,6 +168,7 @@ function recalluser_supports($feature) {
 }
 
 /**
+ * @param bool $onlyscorm
  * @return array
  * @throws moodle_exception
  */
@@ -206,7 +207,9 @@ function recalluser_getcustomcertsfromcourse($courseid)
 }
 
 /**
+ * @throws coding_exception
  * @throws dml_exception
+ * @throws moodle_exception
  */
 function recalluser_logs_generate() {
 
@@ -255,6 +258,7 @@ function recalluser_logs_generate() {
             //ToDo : other modules than scorm
             $sql = "SELECT u.*
                 FROM {user} u
+                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
                 WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY)
                 GROUP BY u.id
@@ -271,6 +275,7 @@ function recalluser_logs_generate() {
             //ToDo : other modules than scorm
             $sql = "SELECT u.*
                 FROM {user} u
+                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
                 WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY)
                 GROUP BY u.id

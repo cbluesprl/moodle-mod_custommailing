@@ -167,6 +167,7 @@ class Mailing {
         $record->mailingdelay = (int) $record->mailingdelay;
         $record->mailingstatus = (bool) $record->mailingstatus;
         $record->targetmoduleid = (int) $record->targetmoduleid;
+        $record->targetmodulestatus = (int) $record->targetmodulestatus;
         $record->customcertmoduleid = empty($record->customcertmoduleid) ? null : (int) $record->customcertmoduleid;
         $record->starttime = (int) $record->starttime;
         $record->timecreated = (int) $record->timecreated;
