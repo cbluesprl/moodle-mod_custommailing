@@ -64,3 +64,5 @@ $string['selectsource'] = "Source";
 $string['module'] = "Activité";
 $string['course'] = "Formation";
 $string['certificate'] = "Certificat";
+$string['customcert'] = "Certificat";
+$string['customcert_help'] = "Un email avec le certificat en pièce jointe sera envoyé à tous les utilisateurs remplissant les conditions d'obtention du certificat";

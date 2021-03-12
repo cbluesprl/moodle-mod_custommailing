@@ -117,6 +117,7 @@ class mailing_form extends moodleform
             $mform->addElement('select', 'customcert', get_string('certificate', 'mod_recalluser'), recalluser_getcustomcertsfromcourse($COURSE->id));
             $mform->setType('customcert', PARAM_INT);
             $mform->hideIf('customcert', 'source', 'noteq', 3);
+            $mform->addHelpButton('customcert', 'customcert', 'mod_recalluser');
         }
 
         // Add mode
@@ -124,14 +125,13 @@ class mailing_form extends moodleform
 
         $mailing_mode_module[] =& $mform->createElement('radio', 'mailingmodemodule', null, '', 'option');
         $mailing_mode_module[] =& $mform->createElement('select', 'mailingdelaymodule', null, $days);
-//        $mailing_mode_module[] =& $mform->createElement('static', '', null, '&nbsp;' . get_string('daysafter', 'mod_recalluser') . '&nbsp;');
         $mailing_mode_module[] =& $mform->createElement(
             'select', 'mailingmodemoduleoption', null, [
                 MAILING_MODE_DAYSFROMFIRSTLAUNCH => get_string('firstlaunch', 'mod_recalluser'),
                 MAILING_MODE_DAYSFROMLASTLAUNCH => get_string('lastlaunch', 'mod_recalluser'),
             ]
         );
-//        $mailing_mode_module[] =& $mform->createElement('static', '', null, get_string('andtargetactivitynotcompleted', 'mod_recalluser'));
+        $mailing_mode_module[] =& $mform->createElement('checkbox', 'mailingmodemodulecompletion', get_string('andtargetactivitynotcompleted', 'mod_recalluser'));
         $mform->addGroup($mailing_mode_module, 'mailingmodemodulegroup', get_string('sendmailing', 'mod_recalluser'), ' ', false);
         $mform->setType('mailingmodemodule', PARAM_INT);
         $mform->setDefault('mailingmodemodule', 0);
@@ -142,14 +142,13 @@ class mailing_form extends moodleform
 
         $mailing_mode[] =& $mform->createElement('radio', 'mailingmode', null, '', 'option');
         $mailing_mode[] =& $mform->createElement('select', 'mailingdelay', null, $days);
-//        $mailing_mode[] =& $mform->createElement('static', 'mailingmodetext', null, '&nbsp;' . get_string('daysafter', 'mod_recalluser') . '&nbsp;');
         $mailing_mode[] =& $mform->createElement(
             'select', 'mailingmodeoption', null, [
                 MAILING_MODE_DAYSFROMINSCRIPTIONDATE => get_string('courseenroldate', 'mod_recalluser'),
                 MAILING_MODE_DAYSFROMLASTCONNECTION => get_string('courselastaccess', 'mod_recalluser'),
             ]
         );
-//        $mailing_mode[] =& $mform->createElement('static', '', null, get_string('andtargetactivitynotcompleted', 'mod_recalluser'));
+        $mailing_mode[] =& $mform->createElement('checkbox', 'mailingmodecompletion', get_string('andtargetactivitynotcompleted', 'mod_recalluser'));
         $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_recalluser'), ' ', false);
         $mform->addElement('radio', 'mailingmode', null, get_string('atcourseenrol', 'mod_recalluser'), MAILING_MODE_REGISTRATION);
         $mform->setType('mailingmode', PARAM_INT);
