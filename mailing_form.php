@@ -42,6 +42,7 @@ class mailing_form extends moodleform
     {
         global $COURSE, $PAGE;
 
+        $cert = false;
         $mform =& $this->_form;
         $course_module_context = $PAGE->context;
         $custom_cert = core_plugin_manager::instance()->get_plugin_info('mod_customcert');
@@ -69,7 +70,10 @@ class mailing_form extends moodleform
             }
         }
 
-        $scorm = recalluser_get_activities(true);
+        $scorm = recalluser_get_activities('scorm');
+        if ($custom_cert) {
+            $cert = recalluser_get_activities('customcert');
+        }
 
         $source = [];
         $source[0] = get_string('select', 'mod_recalluser');
@@ -77,7 +81,7 @@ class mailing_form extends moodleform
             $source[MAILING_SOURCE_MODULE] = get_string('module', 'mod_recalluser');
         }
         $source[MAILING_SOURCE_COURSE] = get_string('course', 'mod_recalluser');
-        if ($custom_cert) {
+        if ($cert) {
             $source[MAILING_SOURCE_CERT] = get_string('certificate', 'mod_recalluser');
         }
 
@@ -117,7 +121,7 @@ class mailing_form extends moodleform
         $mform->hideIf('targetmoduleid', 'source', 'noteq', 1);
 
         // Add custom cert
-        if ($custom_cert) {
+        if ($cert) {
             $mform->addElement('select', 'customcert', get_string('certificate', 'mod_recalluser'), recalluser_getcustomcertsfromcourse($COURSE->id));
             $mform->setType('customcert', PARAM_INT);
             $mform->hideIf('customcert', 'source', 'noteq', 3);

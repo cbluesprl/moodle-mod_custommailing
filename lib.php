@@ -168,18 +168,18 @@ function recalluser_supports($feature) {
 }
 
 /**
- * @param bool $onlyscorm
+ * @param mixed $only [false for all OR modname (scorm, quiz, etc...)]
  * @return array
  * @throws moodle_exception
  */
-function recalluser_get_activities ($onlyscorm = false) {
+function recalluser_get_activities ($only= false) {
     global $COURSE, $PAGE;
     $course_module_context = $PAGE->context;
 
     $activities = [];
     foreach ($modinfo = get_fast_modinfo($COURSE)->get_cms() as $cm) {
         if ($cm->id != $course_module_context->instanceid) {
-            if (!$onlyscorm || ($onlyscorm && $cm->modname == 'scorm')) {
+            if (!$only || $cm->modname == $only) {
                 $activities[(int) $cm->id] = format_string($cm->name);
             }
         }
@@ -266,6 +266,7 @@ function recalluser_logs_generate() {
                 ";
 //            $sql = "SELECT u.*
 //                FROM {user} u
+//                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
 //                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
 //                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
 //                GROUP BY u.id
@@ -283,6 +284,7 @@ function recalluser_logs_generate() {
                 ";
 //            $sql = "SELECT u.*
 //                FROM {user} u
+//                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
 //                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
 //                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
 //                GROUP BY u.id
