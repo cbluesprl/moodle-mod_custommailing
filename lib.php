@@ -409,7 +409,8 @@ function custommailing_certifications($customcertid, $courseid)
                 FROM {user} u
                 JOIN {course} c ON c.id = :courseid
                 JOIN {enrol} e ON e.courseid = c.id
-                JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id";
+                JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id
+                GROUP BY u.id";
 
     $users = $DB->get_records_sql($sql, ['courseid' => $courseid]);
     foreach ($users as $user) {
