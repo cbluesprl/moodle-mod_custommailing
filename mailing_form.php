@@ -103,6 +103,9 @@ class mailing_form extends moodleform
         $mform->addElement('select', 'source', get_string('selectsource', 'mod_recalluser'), $source);
         $mform->setType('source', PARAM_INT);
         $mform->addRule('source', get_string('required'), 'required');
+        if (!empty($this->_customdata['mailingid'])) {
+            $mform->disabledIf('source', 'mailingid', 'noteq', 0);
+        }
 
         // Add target activity
         $mform->addElement('select', 'targetmoduleid', get_string('targetmoduleid', 'mod_recalluser'), recalluser_get_activities());
