@@ -251,7 +251,7 @@ function custommailing_logs_generate() {
                 FROM {user} u
                 JOIN {user_enrolments} ue ON ue.userid = u.id
                 JOIN {enrol} e ON e.id = ue.enrolid 
-                WHERE e.courseid = $mailing->courseid AND ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay $delay_range))
+                WHERE e.courseid = $mailing->courseid AND ue.timestart > UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
                 GROUP BY u.id
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
@@ -267,7 +267,7 @@ function custommailing_logs_generate() {
                 FROM {user} u
                 JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
-                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
+                WHERE lsl.timecreated > UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
                 GROUP BY u.id
                 ORDER BY lsl.id DESC
                 ";
@@ -277,7 +277,7 @@ function custommailing_logs_generate() {
                 FROM {user} u
                 JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
-                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
+                WHERE lsl.timecreated > UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
                 GROUP BY u.id
                 ORDER BY lsl.id ASC
                 ";
