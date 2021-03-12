@@ -17,13 +17,13 @@
 /**
  * Mailing Class
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     olivier@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_recalluser;
+namespace mod_custommailing;
 
 use dml_exception;
 use stdClass;
@@ -32,14 +32,14 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once $CFG->dirroot . '/mod/recalluser/lib.php';
+require_once $CFG->dirroot . '/mod/custommailing/lib.php';
 
 /**
  * Class Mailing
- * @package mod_recalluser
+ * @package mod_custommailing
  *
  * @property int id
- * @property int recalluserid
+ * @property int custommailingid
  * @property string mailingname
  * @property string mailinglang
  * @property string mailingsubject
@@ -66,7 +66,7 @@ class Mailing {
 
         $record->timecreated = $record->timemodified = time();
 
-        return $DB->insert_record('recalluser_mailing', $record);
+        return $DB->insert_record('custommailing_mailing', $record);
     }
 
     /**
@@ -77,7 +77,7 @@ class Mailing {
     public static function get(int $id) {
         global $DB;
 
-        $record = $DB->get_record('recalluser_mailing', ['id' => $id], '*', MUST_EXIST);
+        $record = $DB->get_record('custommailing_mailing', ['id' => $id], '*', MUST_EXIST);
         $record = Mailing::format($record);
 
 
@@ -85,15 +85,15 @@ class Mailing {
     }
 
     /**
-     * @param int $recalluser_id
+     * @param int $custommailing_id
      * @return stdClass[]
      * @throws dml_exception
      */
-    public static function getAll(int $recalluser_id) {
+    public static function getAll(int $custommailing_id) {
         global $DB;
 
         $records = [];
-        $rs = $DB->get_recordset('recalluser_mailing', ['recalluserid' => $recalluser_id], 'id ASC');
+        $rs = $DB->get_recordset('custommailing_mailing', ['custommailingid' => $custommailing_id], 'id ASC');
         foreach ($rs as $record) {
             $record = Mailing::format($record);
             $records[$record->id] = $record;
@@ -113,7 +113,7 @@ class Mailing {
 
         $record->timemodified = time();
 
-        return $DB->update_record('recalluser_mailing', $record);
+        return $DB->update_record('custommailing_mailing', $record);
     }
 
     /**
@@ -123,16 +123,16 @@ class Mailing {
     public static function delete(int $id) {
         global $DB;
 
-        $DB->delete_records('recalluser_logs', ['recallusermailingid' => $id]);
-        $DB->delete_records('recalluser_mailing', ['id' => $id]);
+        $DB->delete_records('custommailing_logs', ['custommailingmailingid' => $id]);
+        $DB->delete_records('custommailing_mailing', ['id' => $id]);
     }
 
     /**
-     * @param int $recalluser_id
+     * @param int $custommailing_id
      * @throws dml_exception
      */
-    public static function deleteAll(int $recalluser_id) {
-        foreach (Mailing::getAll($recalluser_id) as $mailing) {
+    public static function deleteAll(int $custommailing_id) {
+        foreach (Mailing::getAll($custommailing_id) as $mailing) {
             Mailing::delete($mailing->id);
         }
     }
@@ -145,7 +145,7 @@ class Mailing {
         global $DB;
 
         $records = [];
-        $rs = $DB->get_recordset('recalluser_mailing', ['mailingstatus' => MAILING_STATUS_ENABLED]);
+        $rs = $DB->get_recordset('custommailing_mailing', ['mailingstatus' => MAILING_STATUS_ENABLED]);
         foreach ($rs as $record) {
             $record = Mailing::format($record);
             $records[$record->id] = $record;
@@ -161,7 +161,7 @@ class Mailing {
      */
     protected static function format(stdClass $record) {
         $record->id = (int) $record->id;
-        $record->recalluserid = (int) $record->recalluserid;
+        $record->custommailingid = (int) $record->custommailingid;
         $record->mailingcontentformat = (int) $record->mailingcontentformat;
         $record->mailingmode = (int) $record->mailingmode;
         $record->mailingdelay = (int) $record->mailingdelay;

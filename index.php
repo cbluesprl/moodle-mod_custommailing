@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Display information about all the mod_recalluser modules in the requested course.
+ * Display information about all the mod_custommailing modules in the requested course.
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     jeanfrancois@cblue.be,olivier@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_recalluser\event\course_module_instance_list_viewed;
+use mod_custommailing\event\course_module_instance_list_viewed;
 
 require_once __DIR__ . '/../../config.php';
 
 global $CFG, $DB, $PAGE, $OUTPUT;
 
-require_once $CFG->dirroot . '/mod/recalluser/lib.php';
+require_once $CFG->dirroot . '/mod/custommailing/lib.php';
 
 $id = required_param('id', PARAM_INT);
 
@@ -43,7 +43,7 @@ if (!empty($id)) {
 
 require_course_login($course);
 
-$PAGE->set_url('/mod/recalluser/index.php', ['id' => $id]);
+$PAGE->set_url('/mod/custommailing/index.php', ['id' => $id]);
 $PAGE->set_pagelayout('incourse');
 
 // Add the page view to the Moodle log.
@@ -61,8 +61,8 @@ $PAGE->set_heading(format_string($course->fullname));
 echo $OUTPUT->header();
 
 // Get all the appropriate data.
-if (!$recalls = get_all_instances_in_course('recalluser', $course)) {
-    notice('There are no instances of recalluser', "../../course/view.php?id=$course->id");
+if (!$mailings = get_all_instances_in_course('custommailing', $course)) {
+    notice('There are no instances of custommailing', "../../course/view.php?id=$course->id");
     die;
 }
 
@@ -73,27 +73,27 @@ $table->attributes['class'] = 'generaltable mod_index';
 $usesections = course_format_uses_sections($course->format);
 $modinfo = get_fast_modinfo($course);
 $currentsection = '';
-foreach ($recalls as $recall) {
-    $cm = $modinfo->cms[$recall->coursemodule];
+foreach ($mailings as $mailing) {
+    $cm = $modinfo->cms[$mailing->coursemodule];
     if ($usesections) {
         $printsection = '';
-        if ($recall->section !== $currentsection) {
-            if ($recall->section) {
-                $printsection = get_section_name($course, $recall->section);
+        if ($mailing->section !== $currentsection) {
+            if ($mailing->section) {
+                $printsection = get_section_name($course, $mailing->section);
             }
             if ($currentsection !== '') {
                 $table->data[] = 'hr';
             }
-            $currentsection = $recall->section;
+            $currentsection = $mailing->section;
         }
     } else {
-        $printsection = userdate($recall->timemodified);
+        $printsection = userdate($mailing->timemodified);
     }
 
-    $class = $recall->visible ? '' : 'class="dimmed"'; // Hidden modules are dimmed.
+    $class = $mailing->visible ? '' : 'class="dimmed"'; // Hidden modules are dimmed.
 
     $table->data[] = [
-        $printsection, html_writer::link('view.php?id=' . $cm->id, format_string($recall->name))
+        $printsection, html_writer::link('view.php?id=' . $cm->id, format_string($mailing->name))
     ];
 }
 

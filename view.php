@@ -15,65 +15,65 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Prints an instance of mod_recall_user.
+ * Prints an instance of mod_custommailing.
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     olivier@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_recalluser\Mailing;
+use mod_custommailing\Mailing;
 
 require_once __DIR__ . '/../../config.php';
 
 global $CFG, $DB, $PAGE, $OUTPUT;
 
-require_once $CFG->dirroot . '/mod/recalluser/lib.php';
-require_once $CFG->dirroot . '/mod/recalluser/mailing_form.php';
+require_once $CFG->dirroot . '/mod/custommailing/lib.php';
+require_once $CFG->dirroot . '/mod/custommailing/mailing_form.php';
 
 $id = required_param('id', PARAM_INT);
 
-[$course, $cm] = get_course_and_cm_from_cmid($id, 'recalluser');
-$recalluser = $DB->get_record("recalluser", ['id' => $cm->instance]);
+[$course, $cm] = get_course_and_cm_from_cmid($id, 'custommailing');
+$custommailing = $DB->get_record("custommailing", ['id' => $cm->instance]);
 $context = context_module::instance($cm->id);
 
 require_login($course, false, $cm);
-require_capability('mod/recalluser:manage', $context);
+require_capability('mod/custommailing:manage', $context);
 
-$url = new moodle_url('/mod/recalluser/view.php', ['id' => $cm->id]);
+$url = new moodle_url('/mod/custommailing/view.php', ['id' => $cm->id]);
 
 $PAGE->set_url($url);
-$PAGE->set_title(format_string($course->shortname . ': ' . $recalluser->name));
+$PAGE->set_title(format_string($course->shortname . ': ' . $custommailing->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
-$mailings = Mailing::getAll($recalluser->id);
-$activities = recalluser_get_activities(true);
+$mailings = Mailing::getAll($custommailing->id);
+$activities = custommailing_get_activities(true);
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($recalluser->name));
+echo $OUTPUT->heading(format_string($custommailing->name));
 
 echo '<hr>';
-echo '<a class="btn btn-primary" href="' . (new moodle_url('/mod/recalluser/upsert.php', ['id' => $id]))->out(false) . '">' . get_string('createnewmailing', 'mod_recalluser') . '</a>';
+echo '<a class="btn btn-primary" href="' . (new moodle_url('/mod/custommailing/upsert.php', ['id' => $id]))->out(false) . '">' . get_string('createnewmailing', 'mod_custommailing') . '</a>';
 echo '<hr>';
 echo '<div id="mailingsList">';
 foreach ($mailings as $mailing) {
     $mailing->mailingmodestr = '';
     if ($mailing->mailingmode == MAILING_MODE_FIRSTLAUNCH) {
-        $mailing->mailingmodestr = get_string('atfirstlaunch', 'mod_recalluser');
+        $mailing->mailingmodestr = get_string('atfirstlaunch', 'mod_custommailing');
     } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION) {
-        $mailing->mailingmodestr = get_string('atcourseenrol', 'mod_recalluser');
+        $mailing->mailingmodestr = get_string('atcourseenrol', 'mod_custommailing');
     } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE) {
-        $mailing->mailingmodestr = get_string('atactivitycompleted', 'mod_recalluser');
+        $mailing->mailingmodestr = get_string('atactivitycompleted', 'mod_custommailing');
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE) {
-        $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_recalluser') . ' ' . get_string('courseenroldate', 'mod_recalluser');
+        $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_custommailing') . ' ' . get_string('courseenroldate', 'mod_custommailing');
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION) {
-        $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_recalluser') . ' ' . get_string('courselastaccess', 'mod_recalluser');
+        $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_custommailing') . ' ' . get_string('courselastaccess', 'mod_custommailing');
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH) {
-        $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_recalluser') . ' ' . get_string('firstlaunch', 'mod_recalluser');
+        $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_custommailing') . ' ' . get_string('firstlaunch', 'mod_custommailing');
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH) {
-        $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_recalluser') . ' ' . get_string('lastlaunch', 'mod_recalluser');
+        $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_custommailing') . ' ' . get_string('lastlaunch', 'mod_custommailing');
     }
     echo
         '<div class="card">
@@ -83,10 +83,10 @@ foreach ($mailings as $mailing) {
                  <strong>' . $mailing->mailingname . '</strong> (#' . $mailing->id . ')
                  <div class="pull-right">
                    <span class="disabled btn btn-sm ' . ($mailing->mailingstatus == MAILING_STATUS_ENABLED ? 'btn-success' : 'btn-warning') . '">' .
-                    ($mailing->mailingstatus == MAILING_STATUS_ENABLED ? get_string('enabled', 'mod_recalluser') : get_string('disabled', 'mod_recalluser')) .
+                    ($mailing->mailingstatus == MAILING_STATUS_ENABLED ? get_string('enabled', 'mod_custommailing') : get_string('disabled', 'mod_custommailing')) .
                   '</span>
-                   <a class="btn btn-sm btn-info " href="' . (new moodle_url('/mod/recalluser/upsert.php', ['id' => $id, 'mailingid' => $mailing->id]))->out(false) . '">' . get_string('edit') . '</a>
-                   <a class="btn btn-sm btn-danger " href="' . (new moodle_url('/mod/recalluser/delete.php', ['id' => $id, 'mailingid' => $mailing->id]))->out(false) . '">' . get_string('delete') . '</a>
+                   <a class="btn btn-sm btn-info " href="' . (new moodle_url('/mod/custommailing/upsert.php', ['id' => $id, 'mailingid' => $mailing->id]))->out(false) . '">' . get_string('edit') . '</a>
+                   <a class="btn btn-sm btn-danger " href="' . (new moodle_url('/mod/custommailing/delete.php', ['id' => $id, 'mailingid' => $mailing->id]))->out(false) . '">' . get_string('delete') . '</a>
                  </div>
                 </div>
              </h5>
@@ -95,17 +95,17 @@ foreach ($mailings as $mailing) {
            <div id="mailing_' . $mailing->id . '_content" class="collapse" aria-labelledby="mailing_' . $mailing->id . '" data-parent="#mailingsList">
              <div class="card-body">
                 <p><strong>ID</strong> : ' . $mailing->id . '</p>
-                <p><strong>' . get_string('recallusername', 'recalluser') . '</strong> : ' . $mailing->mailingname . '</p>
-                <p><strong>' . get_string('mailinglang', 'recalluser') . '</strong> : ' . $mailing->mailinglang . '</p>';
+                <p><strong>' . get_string('custommailingname', 'custommailing') . '</strong> : ' . $mailing->mailingname . '</p>
+                <p><strong>' . get_string('mailinglang', 'custommailing') . '</strong> : ' . $mailing->mailinglang . '</p>';
     if (empty($mailing->targetmoduleid)) {
-        echo    '<p><strong>' . get_string('targetmoduleid', 'recalluser') . '</strong> : - </p>';
+        echo    '<p><strong>' . get_string('targetmoduleid', 'custommailing') . '</strong> : - </p>';
     } else {
-        echo    '<p><strong>' . get_string('targetmoduleid', 'recalluser') . '</strong> : ' . (isset($activities[$mailing->targetmoduleid]) ? $activities[$mailing->targetmoduleid] : 'not found') . '</p>';
+        echo    '<p><strong>' . get_string('targetmoduleid', 'custommailing') . '</strong> : ' . (isset($activities[$mailing->targetmoduleid]) ? $activities[$mailing->targetmoduleid] : 'not found') . '</p>';
     }
-    echo        '<p><strong>' . get_string('sendmailing', 'recalluser') . '</strong> : ' . $mailing->mailingmodestr . '</p>
-                <p><strong>' . get_string('mailingsubject', 'recalluser') . '</strong> : ' . $mailing->mailingsubject . '</p>
-                <p><strong>' . get_string('mailingcontent', 'recalluser') . '</strong> : ' . $mailing->mailingcontent . '</p>
-                <p><strong>' . get_string('starttime', 'recalluser') . '</strong> : ' .  str_pad(floor($mailing->starttime / 3600), 2, '0', STR_PAD_LEFT) . ' : ' . str_pad(floor(($mailing->starttime / 60) % 60), 2, '0', STR_PAD_LEFT) . '</p>';
+    echo        '<p><strong>' . get_string('sendmailing', 'custommailing') . '</strong> : ' . $mailing->mailingmodestr . '</p>
+                <p><strong>' . get_string('mailingsubject', 'custommailing') . '</strong> : ' . $mailing->mailingsubject . '</p>
+                <p><strong>' . get_string('mailingcontent', 'custommailing') . '</strong> : ' . $mailing->mailingcontent . '</p>
+                <p><strong>' . get_string('starttime', 'custommailing') . '</strong> : ' .  str_pad(floor($mailing->starttime / 3600), 2, '0', STR_PAD_LEFT) . ' : ' . str_pad(floor(($mailing->starttime / 60) % 60), 2, '0', STR_PAD_LEFT) . '</p>';
     echo     '</div>
            </div>
         </div>';

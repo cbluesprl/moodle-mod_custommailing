@@ -17,7 +17,7 @@
 /**
  * This file manages all the capability definitions
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     jeanfrancois@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
 
-    'mod/recalluser:addinstance' => [
+    'mod/custommailing:addinstance' => [
         'riskbitmask' => RISK_XSS,
 
         'captype' => 'write',
@@ -39,7 +39,7 @@ $capabilities = [
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ],
 
-    'mod/recalluser:manage' => [
+    'mod/custommailing:manage' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'legacy' => [

@@ -23,12 +23,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_recalluser\task;
+namespace mod_custommailing\task;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Simple task to run the Recalluser cron.
+ * Simple task to run the custommailing cron.
  *
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -41,7 +41,7 @@ class cron_task extends \core\task\scheduled_task {
      * @return string
      */
     public function get_name() {
-        return get_string('crontask', 'recalluser');
+        return get_string('crontask', 'custommailing');
     }
 
     /**
@@ -50,8 +50,8 @@ class cron_task extends \core\task\scheduled_task {
      */
     public function execute() {
         global $CFG;
-        require_once($CFG->dirroot . '/mod/recalluser/lib.php');
-        recalluser_crontask();
+        require_once($CFG->dirroot . '/mod/custommailing/lib.php');
+        custommailing_crontask();
     }
 
 }

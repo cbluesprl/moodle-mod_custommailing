@@ -17,13 +17,13 @@
 /**
  * This file manages the course_module_instance_list_viewed event
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     jeanfrancois@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_recalluser\event;
+namespace mod_custommailing\event;
 
 use coding_exception;
 
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Class course_module_instance_list_viewed
- * @package mod_recalluser\event
+ * @package mod_custommailing\event
  */
 class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
 

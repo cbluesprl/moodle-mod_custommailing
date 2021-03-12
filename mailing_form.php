@@ -17,7 +17,7 @@
 /**
  * This file manages the public functions of this module
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     jeanfrancois@cblue.be,olivier@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -70,19 +70,19 @@ class mailing_form extends moodleform
             }
         }
 
-        $scorm = recalluser_get_activities('scorm');
+        $scorm = custommailing_get_activities('scorm');
         if ($custom_cert) {
-            $cert = recalluser_get_activities('customcert');
+            $cert = custommailing_get_activities('customcert');
         }
 
         $source = [];
-        $source[0] = get_string('select', 'mod_recalluser');
+        $source[0] = get_string('select', 'mod_custommailing');
         if ($scorm) {
-            $source[MAILING_SOURCE_MODULE] = get_string('module', 'mod_recalluser');
+            $source[MAILING_SOURCE_MODULE] = get_string('module', 'mod_custommailing');
         }
-        $source[MAILING_SOURCE_COURSE] = get_string('course', 'mod_recalluser');
+        $source[MAILING_SOURCE_COURSE] = get_string('course', 'mod_custommailing');
         if ($cert) {
-            $source[MAILING_SOURCE_CERT] = get_string('certificate', 'mod_recalluser');
+            $source[MAILING_SOURCE_CERT] = get_string('certificate', 'mod_custommailing');
         }
 
         // Add id
@@ -98,17 +98,17 @@ class mailing_form extends moodleform
         }
 
         // Add name
-        $mform->addElement('text', 'mailingname', get_string('mailingname', 'mod_recalluser'), 'maxlength="255" size="32"');
+        $mform->addElement('text', 'mailingname', get_string('mailingname', 'mod_custommailing'), 'maxlength="255" size="32"');
         $mform->setType('mailingname', PARAM_RAW_TRIMMED);
         $mform->addRule('mailingname', get_string('required'), 'required');
 
         // Add lang
-        $mform->addElement('select', 'mailinglang', get_string('mailinglang', 'mod_recalluser'), get_string_manager()->get_list_of_translations());
+        $mform->addElement('select', 'mailinglang', get_string('mailinglang', 'mod_custommailing'), get_string_manager()->get_list_of_translations());
         $mform->setType('mailinglang', PARAM_LANG);
         $mform->addRule('mailinglang', get_string('required'), 'required');
 
         // Select Source
-        $mform->addElement('select', 'source', get_string('selectsource', 'mod_recalluser'), $source);
+        $mform->addElement('select', 'source', get_string('selectsource', 'mod_custommailing'), $source);
         $mform->setType('source', PARAM_INT);
         $mform->addRule('source', get_string('required'), 'required');
         if (!empty($this->_customdata['mailingid'])) {
@@ -116,16 +116,16 @@ class mailing_form extends moodleform
         }
 
         // Add target activity
-        $mform->addElement('select', 'targetmoduleid', get_string('targetmoduleid', 'mod_recalluser'), $scorm);
+        $mform->addElement('select', 'targetmoduleid', get_string('targetmoduleid', 'mod_custommailing'), $scorm);
         $mform->setType('targetmoduleid', PARAM_INT);
         $mform->hideIf('targetmoduleid', 'source', 'noteq', 1);
 
         // Add custom cert
         if ($cert) {
-            $mform->addElement('select', 'customcert', get_string('certificate', 'mod_recalluser'), recalluser_getcustomcertsfromcourse($COURSE->id));
+            $mform->addElement('select', 'customcert', get_string('certificate', 'mod_custommailing'), custommailing_getcustomcertsfromcourse($COURSE->id));
             $mform->setType('customcert', PARAM_INT);
             $mform->hideIf('customcert', 'source', 'noteq', 3);
-            $mform->addHelpButton('customcert', 'customcert', 'mod_recalluser');
+            $mform->addHelpButton('customcert', 'customcert', 'mod_custommailing');
         }
 
         // Add mode
@@ -135,12 +135,12 @@ class mailing_form extends moodleform
         $mailing_mode_module[] =& $mform->createElement('select', 'mailingdelaymodule', null, $days);
         $mailing_mode_module[] =& $mform->createElement(
             'select', 'mailingmodemoduleoption', null, [
-                MAILING_MODE_DAYSFROMFIRSTLAUNCH => get_string('firstlaunch', 'mod_recalluser'),
-                MAILING_MODE_DAYSFROMLASTLAUNCH => get_string('lastlaunch', 'mod_recalluser'),
+                MAILING_MODE_DAYSFROMFIRSTLAUNCH => get_string('firstlaunch', 'mod_custommailing'),
+                MAILING_MODE_DAYSFROMLASTLAUNCH => get_string('lastlaunch', 'mod_custommailing'),
             ]
         );
-        $mailing_mode_module[] =& $mform->createElement('checkbox', 'mailingmodecompletion', get_string('andtargetactivitynotcompleted', 'mod_recalluser'));
-        $mform->addGroup($mailing_mode_module, 'mailingmodemodulegroup', get_string('sendmailing', 'mod_recalluser'), ' ', false);
+        $mailing_mode_module[] =& $mform->createElement('checkbox', 'mailingmodecompletion', get_string('andtargetactivitynotcompleted', 'mod_custommailing'));
+        $mform->addGroup($mailing_mode_module, 'mailingmodemodulegroup', get_string('sendmailing', 'mod_custommailing'), ' ', false);
         $mform->setType('mailingmodemodule', PARAM_INT);
         $mform->setDefault('mailingmodemodule', 0);
         $mform->hideIf('mailingmodemodule', 'source', 'noteq', 1);
@@ -152,12 +152,12 @@ class mailing_form extends moodleform
         $mailing_mode[] =& $mform->createElement('select', 'mailingdelay', null, $days);
         $mailing_mode[] =& $mform->createElement(
             'select', 'mailingmodeoption', null, [
-                MAILING_MODE_DAYSFROMINSCRIPTIONDATE => get_string('courseenroldate', 'mod_recalluser'),
-                MAILING_MODE_DAYSFROMLASTCONNECTION => get_string('courselastaccess', 'mod_recalluser'),
+                MAILING_MODE_DAYSFROMINSCRIPTIONDATE => get_string('courseenroldate', 'mod_custommailing'),
+                MAILING_MODE_DAYSFROMLASTCONNECTION => get_string('courselastaccess', 'mod_custommailing'),
             ]
         );
-        $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_recalluser'), ' ', false);
-        $mform->addElement('radio', 'mailingmode', null, get_string('atcourseenrol', 'mod_recalluser'), MAILING_MODE_REGISTRATION);
+        $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_custommailing'), ' ', false);
+        $mform->addElement('radio', 'mailingmode', null, get_string('atcourseenrol', 'mod_custommailing'), MAILING_MODE_REGISTRATION);
         $mform->setType('mailingmode', PARAM_INT);
         $mform->setDefault('mailingmode', 0);
         $mform->hideIf('mailingmode', 'source', 'noteq', 2);
@@ -166,12 +166,12 @@ class mailing_form extends moodleform
         $mform->hideIf('mailingmodegroup', 'source', 'noteq', 2);
 
         // Add subject
-        $mform->addElement('text', 'mailingsubject', get_string('mailingsubject', 'mod_recalluser'));
+        $mform->addElement('text', 'mailingsubject', get_string('mailingsubject', 'mod_custommailing'));
         $mform->setType('mailingsubject', PARAM_RAW_TRIMMED);
         $mform->addRule('mailingsubject', get_string('required'), 'required');
 
         // Add body
-        $mform->addElement('editor', 'mailingcontent', get_string('mailingcontent', 'mod_recalluser'), '', ['enable_filemanagement' => false]);
+        $mform->addElement('editor', 'mailingcontent', get_string('mailingcontent', 'mod_custommailing'), '', ['enable_filemanagement' => false]);
         $mform->setType('mailingcontent', PARAM_RAW);
         $mform->addRule('mailingcontent', get_string('required'), 'required');
 
@@ -181,19 +181,19 @@ class mailing_form extends moodleform
 //        $start_time[] =& $mform->createElement('select', 'starttimehour', '', $hours);
 //        $start_time[] =& $mform->createElement('static', '', null, '&nbsp:&nbsp;');
 //        $start_time[] =& $mform->createElement('select', 'starttimeminute', '', $minutes);
-//        $mform->addGroup($start_time, 'starttime', get_string('starttime', 'mod_recalluser'), ' ', false);
+//        $mform->addGroup($start_time, 'starttime', get_string('starttime', 'mod_custommailing'), ' ', false);
 //        $mform->addRule('starttime', get_string('required'), 'required');
 
         // Add status
-        $mform->addElement('selectyesno', 'mailingstatus', get_string('enabled', 'mod_recalluser'));
+        $mform->addElement('selectyesno', 'mailingstatus', get_string('enabled', 'mod_custommailing'));
         $mform->setType('mailingstatus', PARAM_BOOL);
         $mform->setDefault('mailingstatus', 1);
 
         // Add standard buttons, common to all modules.
         if (!empty($this->_customdata['mailingid'])) {
-            $submitlabel = get_string('updatemailing', 'mod_recalluser');
+            $submitlabel = get_string('updatemailing', 'mod_custommailing');
         } else {
-            $submitlabel = get_string('createmailing', 'mod_recalluser');
+            $submitlabel = get_string('createmailing', 'mod_custommailing');
         }
         $this->add_action_buttons(true, $submitlabel);
     }
@@ -208,8 +208,8 @@ class mailing_form extends moodleform
     public function validation($data, $files)
     {
         $errors = parent::validation($data, $files);
-//        if (empty(recalluser_get_activities()[(int) $data['targetmoduleid']])) {
-//            $errors['targetmoduleid'] = get_string('targetactivitynotfound', 'mod_recalluser');
+//        if (empty(custommailing_get_activities()[(int) $data['targetmoduleid']])) {
+//            $errors['targetmoduleid'] = get_string('targetactivitynotfound', 'mod_custommailing');
 //        }
 
         // TODO : validate custom cert (/!\ option "mode")

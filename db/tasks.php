@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Definition of Recalluser scheduled tasks.
+ * Definition of custommailing scheduled tasks.
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     jeanfrancois@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $tasks = array(
     array(
-        'classname' => 'mod_recalluser\task\cron_task',
+        'classname' => 'mod_custommailing\task\cron_task',
         'blocking' => 0,
         'minute' => '0',
         'hour' => '18',

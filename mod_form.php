@@ -17,7 +17,7 @@
 /**
  * This file manages the forms to create and edit an instance of this module
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     jeanfrancois@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,12 +30,12 @@ require_once $CFG->dirroot . '/course/moodleform_mod.php';
 /**
  * Moodleform class.
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     jeanfrancois@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_recalluser_mod_form extends moodleform_mod {
+class mod_custommailing_mod_form extends moodleform_mod {
 
     /**
      * @throws coding_exception
@@ -47,10 +47,12 @@ class mod_recalluser_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('recallusername', 'recalluser'), ['size' => '32']);
+        $mform->addElement('text', 'name', get_string('custommailingname', 'custommailing'), ['size' => '32']);
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+
+        $mform->addElement('checkbox', 'debugmode', get_string('debug', 'mod_custommailing'));
 
         // Adding the standard "intro" fields.
         $this->standard_intro_elements();

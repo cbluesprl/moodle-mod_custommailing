@@ -17,13 +17,13 @@
 /**
  * This file manages the privacy
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     jeanfrancois@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_recalluser\privacy;
+namespace mod_custommailing\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * Class provider
  * This plugin does not store any personal user data.
  *
- * @package mod_recalluser\privacy
+ * @package mod_custommailing\privacy
  */
 class provider implements \core_privacy\local\metadata\null_provider {
 

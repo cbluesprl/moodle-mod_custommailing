@@ -15,59 +15,59 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Prints an instance of mod_recall_user.
+ * Prints an instance of mod_custommailing.
  *
- * @package    mod_recalluser
- * @author     olivier@cblue.be
+ * @package    mod_custommailing
+ * @author     olivier@cblue.be, jeanfrancois@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use core\output\notification;
-use mod_recalluser\Mailing;
+use mod_custommailing\Mailing;
 
 require_once __DIR__ . '/../../config.php';
 
 global $CFG, $DB, $PAGE, $OUTPUT;
 
-require_once $CFG->dirroot . '/mod/recalluser/lib.php';
-require_once $CFG->dirroot . '/mod/recalluser/mailing_form.php';
+require_once $CFG->dirroot . '/mod/custommailing/lib.php';
+require_once $CFG->dirroot . '/mod/custommailing/mailing_form.php';
 require_once $CFG->dirroot . '/lib/completionlib.php';
 
 $id = required_param('id', PARAM_INT);
 $mailing_id = optional_param('mailingid', 0, PARAM_INT);
 
-[$course, $cm] = get_course_and_cm_from_cmid($id, 'recalluser');
-$recalluser = $DB->get_record("recalluser", ['id' => $cm->instance], '*', MUST_EXIST);
+[$course, $cm] = get_course_and_cm_from_cmid($id, 'custommailing');
+$custommailing = $DB->get_record("custommailing", ['id' => $cm->instance], '*', MUST_EXIST);
 $context = context_module::instance($cm->id);
 
 require_login($course, false, $cm);
-require_capability('mod/recalluser:manage', $context);
+require_capability('mod/custommailing:manage', $context);
 
-$PAGE->set_title(format_string($course->shortname . ': ' . $recalluser->name));
+$PAGE->set_title(format_string($course->shortname . ': ' . $custommailing->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 
 if (!empty($mailing_id)) {
     $action = 'update';
-    $mailing = $DB->get_record("recalluser_mailing", ['id' => $mailing_id], '*', MUST_EXIST);
-    $url = new moodle_url('/mod/recalluser/upsert.php', ['id' => $cm->id, 'mailingid' => $mailing->id]);
+    $mailing = $DB->get_record("custommailing_mailing", ['id' => $mailing_id], '*', MUST_EXIST);
+    $url = new moodle_url('/mod/custommailing/upsert.php', ['id' => $cm->id, 'mailingid' => $mailing->id]);
     $form = new mailing_form(null, ['mailingid' => $mailing->id]);
 } else {
     $action = 'create';
-    $url = new moodle_url('/mod/recalluser/upsert.php', ['id' => $cm->id]);
+    $url = new moodle_url('/mod/custommailing/upsert.php', ['id' => $cm->id]);
     $form = new mailing_form();
 }
 $PAGE->set_url($url);
 
 if ($form->is_cancelled()) {
-    redirect(new moodle_url('/mod/recalluser/view.php', ['id' => $id]));
+    redirect(new moodle_url('/mod/custommailing/view.php', ['id' => $id]));
 } elseif ($data = $form->get_data()) {
     if ($action == 'create') {
         $mailing = new stdClass();
     }
 
-    $mailing->recalluserid = (int) $recalluser->id;
+    $mailing->custommailingid = (int) $custommailing->id;
     $mailing->mailingname = $data->mailingname;
     $mailing->mailinglang = $data->mailinglang;
     $mailing->mailingsubject = $data->mailingsubject;
@@ -99,14 +99,14 @@ if ($form->is_cancelled()) {
     }
     if ($action == 'create') {
         Mailing::create($mailing);
-        redirect(new moodle_url('/mod/recalluser/view.php', ['id' => $cm->id]), get_string('mailingadded', 'mod_recalluser'), null, notification::NOTIFY_SUCCESS);
+        redirect(new moodle_url('/mod/custommailing/view.php', ['id' => $cm->id]), get_string('mailingadded', 'mod_custommailing'), null, notification::NOTIFY_SUCCESS);
     } else {
         Mailing::update($mailing);
-        redirect(new moodle_url('/mod/recalluser/view.php', ['id' => $cm->id]), get_string('mailingupdated', 'mod_recalluser'), null, notification::NOTIFY_SUCCESS);
+        redirect(new moodle_url('/mod/custommailing/view.php', ['id' => $cm->id]), get_string('mailingupdated', 'mod_custommailing'), null, notification::NOTIFY_SUCCESS);
     }
 } else {
     echo $OUTPUT->header();
-    echo $OUTPUT->heading(format_string($recalluser->name));
+    echo $OUTPUT->heading(format_string($custommailing->name));
 
     if ($action == 'update') {
         $data = clone $mailing;

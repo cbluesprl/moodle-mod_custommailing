@@ -17,13 +17,13 @@
 /**
  * MailingLog Class
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     olivier@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_recalluser;
+namespace mod_custommailing;
 
 use dml_exception;
 use stdClass;
@@ -32,11 +32,11 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once $CFG->dirroot . '/mod/recalluser/lib.php';
+require_once $CFG->dirroot . '/mod/custommailing/lib.php';
 
 /**
  * Class Mailing
- * @package mod_recalluser
+ * @package mod_custommailing
  */
 class MailingLog
 {
@@ -50,25 +50,25 @@ class MailingLog
 
         $record->timecreated = $record->timemodified = time();
 
-        return $DB->insert_record('recalluser_logs', $record);
+        return $DB->insert_record('custommailing_logs', $record);
     }
 
     /**
-     * @param int $recalluser_mailing_id
+     * @param int $custommailing_mailing_id
      * @param int $status
      * @return stdClass[]
      * @throws dml_exception
      */
-    public static function getAll(int $recalluser_mailing_id, int $status = -1) {
+    public static function getAll(int $custommailing_mailing_id, int $status = -1) {
         global $DB;
 
-        $conditions = ['recallusermailingid' => $recalluser_mailing_id];
+        $conditions = ['custommailingmailingid' => $custommailing_mailing_id];
         if ($status >= 0) {
             $conditions['emailstatus'] = $status;
         }
 
         $records = [];
-        $rs = $DB->get_recordset('recalluser_logs', $conditions, 'ORDER BY id');
+        $rs = $DB->get_recordset('custommailing_logs', $conditions, 'ORDER BY id');
         foreach ($rs as $record) {
             $record = MailingLog::format($record);
             $records[$record->id] = $record;
@@ -88,7 +88,7 @@ class MailingLog
 
         $record->timemodified = time();
 
-        return $DB->update_record('recalluser_logs', $record);
+        return $DB->update_record('custommailing_logs', $record);
     }
 
     /**
@@ -97,7 +97,7 @@ class MailingLog
      */
     protected static function format(stdClass $record) {
         $record->id = (int) $record->id;
-        $record->recallusermailingid = (int) $record->recallusermailingid;
+        $record->custommailingmailingid = (int) $record->custommailingmailingid;
         $record->emailtouserid = (int) $record->emailtouserid;
         $record->emailstatus = (int) $record->emailstatus;
         $record->timecreated = (int) $record->timecreated;

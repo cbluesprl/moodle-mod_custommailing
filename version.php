@@ -17,8 +17,8 @@
 /**
  * Version information
  *
- * @package    mod_recalluser
- * @author     jeanfrancois@cblue.be
+ * @package    mod_custommailing
+ * @author     olivier@cblue.be, jeanfrancois@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,6 +27,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version = 2021031101;
 $plugin->requires = 2020061500; // Requires 3.9
-$plugin->component = 'mod_recalluser';
+$plugin->component = 'mod_custommailing';
 $plugin->release = '0.0.1';
 $plugin->maturity = MATURITY_ALPHA;

@@ -17,19 +17,19 @@
 /**
  * This file manages all the en strings
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     jeanfrancois@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Recalluser';
-$string['modulename'] = 'Recalluser';
-$string['modulenameplural'] = "Recalluser's";
-$string['recallusername'] = "Name";
+$string['pluginname'] = 'custommailing';
+$string['modulename'] = 'custommailing';
+$string['modulenameplural'] = "custommailing's";
+$string['custommailingname'] = "Name";
 $string['coursecompletionenabled'] = "Warning : course completion has been enabled.";
 $string['coursecompletionnotenabled'] = "Error : The activity was added but course completion could not be enabled.";
-$string['pluginadministration'] = 'Recalluser administration';
+$string['pluginadministration'] = 'custommailing administration';
 $string['createnewmailing'] = 'Create a new mailing';
 $string['mailingname'] = 'Name';
 $string['mailinglang'] = 'Lang';
@@ -66,3 +66,4 @@ $string['course'] = "course";
 $string['certificate'] = "certificate";
 $string['customcert'] = "certificate";
 $string['customcert_help'] = "Email with certificate attached will be send to each user who fulfil all requirements of the certificate";
+$string['debugmode'] = "debug mode";

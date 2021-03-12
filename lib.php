@@ -17,15 +17,15 @@
 /**
  * This file manages the public functions of this module
  *
- * @package    mod_recalluser
+ * @package    mod_custommailing
  * @author     jeanfrancois@cblue.be,olivier@cblue.be
  * @copyright  2021 CBlue SPRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use core\notification;
-use mod_recalluser\Mailing;
-use mod_recalluser\MailingLog;
+use mod_custommailing\Mailing;
+use mod_custommailing\MailingLog;
 
 define('MAILING_MODE_NONE', 0);
 define('MAILING_MODE_FIRSTLAUNCH', 1);
@@ -50,52 +50,52 @@ define('MAILING_SOURCE_COURSE', 2);
 define('MAILING_SOURCE_CERT', 3);
 
 /**
- * @param $recalluser
+ * @param $custommailing
  * @return bool|int
  * @throws coding_exception
  * @throws dml_exception
  */
-function recalluser_add_instance($recalluser) {
+function custommailing_add_instance($custommailing) {
     global $CFG, $DB;
 
-    $recalluser->timecreated = time();
-    $recalluser->timemodified = time();
+    $custommailing->timecreated = time();
+    $custommailing->timemodified = time();
 
     // Check if course has completion enabled, and enable it if not (and user has permission to do so)
-    $course = $DB->get_record('course', ['id' => $recalluser->course]);
+    $course = $DB->get_record('course', ['id' => $custommailing->course]);
     if (empty($course->enablecompletion)) {
         if (empty($CFG->enablecompletion)) {
             // Completion tracking is disabled in Moodle
-            notification::error(get_string('coursecompletionnotenabled', 'recalluser'));
+            notification::error(get_string('coursecompletionnotenabled', 'custommailing'));
         } else {
             // Completion tracking is enabled in Moodle
             if (has_capability('moodle/course:update', context_course::instance($course->id))) {
                 $data = ['id' => $course->id, 'enablecompletion' => '1'];
                 $DB->update_record('course', $data);
                 rebuild_course_cache($course->id);
-                notification::warning(get_string('coursecompletionenabled', 'recalluser'));
+                notification::warning(get_string('coursecompletionenabled', 'custommailing'));
             } else {
-                notification::error(get_string('coursecompletionnotenabled', 'recalluser'));
+                notification::error(get_string('coursecompletionnotenabled', 'custommailing'));
             }
         }
 
     }
 
-    return $DB->insert_record('recalluser', $recalluser);
+    return $DB->insert_record('custommailing', $custommailing);
 }
 
 /**
- * @param $recalluser
+ * @param $custommailing
  * @return bool
  * @throws dml_exception
  */
-function recalluser_update_instance($recalluser) {
+function custommailing_update_instance($custommailing) {
     global $DB;
 
-    $recalluser->timemodified = time();
-    $recalluser->id = $recalluser->instance;
+    $custommailing->timemodified = time();
+    $custommailing->id = $custommailing->instance;
 
-    return $DB->update_record('recalluser', $recalluser);
+    return $DB->update_record('custommailing', $custommailing);
 }
 
 /**
@@ -103,19 +103,19 @@ function recalluser_update_instance($recalluser) {
  * @return bool
  * @throws dml_exception
  */
-function recalluser_delete_instance($id) {
+function custommailing_delete_instance($id) {
     global $DB;
 
-    if (!$recalluser = $DB->get_record('recalluser', ['id' => $id])) {
+    if (!$custommailing = $DB->get_record('custommailing', ['id' => $id])) {
         return false;
     }
 
     $result = true;
 
     // Delete any dependent mailing here.
-    Mailing::deleteAll($recalluser->id);
+    Mailing::deleteAll($custommailing->id);
 
-    if (!$DB->delete_records('recalluser', ['id' => $recalluser->id])) {
+    if (!$DB->delete_records('custommailing', ['id' => $custommailing->id])) {
         $result = false;
     }
 
@@ -126,7 +126,7 @@ function recalluser_delete_instance($id) {
  * @param $feature
  * @return bool|null
  */
-function recalluser_supports($feature) {
+function custommailing_supports($feature) {
     switch($feature) {
         case FEATURE_GRADE_HAS_GRADE:
             return false;
@@ -172,7 +172,7 @@ function recalluser_supports($feature) {
  * @return array
  * @throws moodle_exception
  */
-function recalluser_get_activities ($only= false) {
+function custommailing_get_activities ($only= false) {
     global $COURSE, $PAGE;
     $course_module_context = $PAGE->context;
 
@@ -193,7 +193,7 @@ function recalluser_get_activities ($only= false) {
  * @return array
  * @throws dml_exception
  */
-function recalluser_getcustomcertsfromcourse($courseid)
+function custommailing_getcustomcertsfromcourse($courseid)
 {
     global $DB;
 
@@ -211,9 +211,16 @@ function recalluser_getcustomcertsfromcourse($courseid)
  * @throws dml_exception
  * @throws moodle_exception
  */
-function recalluser_logs_generate() {
+function custommailing_logs_generate() {
 
     global $DB, $COURSE;
+
+    $config = get_config('custommailing');
+    if ($config->debugmode) {
+        $delay_range = 'HOUR';
+    } else {
+        $delay_range = 'DAY';
+    }
 
     $mailings = Mailing::getAllToSend();
     foreach ($mailings as $mailing) {
@@ -245,7 +252,7 @@ function recalluser_logs_generate() {
                 JOIN {course} c ON c.id = cm.course
                 JOIN {enrol} e ON e.courseid = c.id
                 JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id
-                WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
+                WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay $delay_range))
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($COURSE->id)) {
             $sql = "SELECT u.*
@@ -260,38 +267,22 @@ function recalluser_logs_generate() {
                 FROM {user} u
                 JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
-                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY)
+                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
                 GROUP BY u.id
                 ORDER BY lsl.id DESC
                 ";
-//            $sql = "SELECT u.*
-//                FROM {user} u
-//                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
-//                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
-//                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
-//                GROUP BY u.id
-//                ORDER BY lsl.id DESC
-//                ";
         } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
             //ToDo : other modules than scorm
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
-                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY)
+                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
                 GROUP BY u.id
                 ORDER BY lsl.id ASC
                 ";
-//            $sql = "SELECT u.*
-//                FROM {user} u
-//                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid AND cmc.completionstate != $mailing->targetmodulestatus
-//                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
-//                WHERE lsl.timecreated > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay DAY))
-//                GROUP BY u.id
-//                ORDER BY lsl.id ASC
-//                ";
         } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
-            recalluser_certifications($mailing->customcertmoduleid);
+            custommailing_certifications($mailing->customcertmoduleid);
             $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = $mailing->customcertmoduleid
@@ -301,9 +292,9 @@ function recalluser_logs_generate() {
             $users = $DB->get_records_sql($sql);
             if (is_array($users)) {
                 foreach ($users as $user) {
-                    if (validate_email($user->email) && !$DB->get_record('recalluser_logs', ['recallusermailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
+                    if (validate_email($user->email) && !$DB->get_record('custommailing_logs', ['custommailingmailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
                         $record = new stdClass();
-                        $record->recallusermailingid = (int) $mailing->id;
+                        $record->custommailingmailingid = (int) $mailing->id;
                         $record->emailtouserid = (int) $user->id;
                         $record->emailstatus = MAILING_LOG_PROCESSING;
                         $record->timecreated = time();
@@ -316,28 +307,28 @@ function recalluser_logs_generate() {
 }
 
 /**
- * Process recalluser_logs MAILING_LOG_SENT records
+ * Process custommailing_logs MAILING_LOG_SENT records
  * Send email to each user
  *
  * @throws dml_exception
  */
-function recalluser_crontask() {
+function custommailing_crontask() {
 
     global $DB;
 
-    recalluser_logs_generate();
+    custommailing_logs_generate();
 
     $ids_to_update = [];
 
     $sql = "SELECT u.*, u.id as userid, rm.mailingsubject, rm.mailingcontent, rl.id as logid, rm.customcertmoduleid
             FROM {user} u
-            JOIN {recalluser_logs} rl ON rl.emailtouserid = u.id 
-            JOIN {recalluser_mailing} rm ON rm.id = rl.recallusermailingid
+            JOIN {custommailing_logs} rl ON rl.emailtouserid = u.id 
+            JOIN {custommailing_mailing} rm ON rm.id = rl.custommailingmailingid
             WHERE rl.emailstatus < " . MAILING_LOG_SENT;
     $logs = $DB->get_recordset_sql($sql);
     foreach ($logs as $log) {
         if (!empty($log->customcertmoduleid)) {
-            $attachment = recalluser_getcertificate($log->userid, $log->customcertmoduleid);
+            $attachment = custommailing_getcertificate($log->userid, $log->customcertmoduleid);
         } else {
             $attachment = new stdClass();
             $attachment->file = '';
@@ -351,7 +342,7 @@ function recalluser_crontask() {
     // Set emailstatus to MAILING_LOG_SENT on each sended email
     if (is_array($ids_to_update) && count($ids_to_update)) {
         $ids = implode(",", array_unique($ids_to_update));
-        $DB->execute("UPDATE {recalluser_logs} SET emailstatus = " . MAILING_LOG_SENT . " WHERE id IN ($ids)");
+        $DB->execute("UPDATE {custommailing_logs} SET emailstatus = " . MAILING_LOG_SENT . " WHERE id IN ($ids)");
     }
 
 }
@@ -364,7 +355,7 @@ function recalluser_crontask() {
  * @return stdClass
  * @throws dml_exception
  */
-function recalluser_getcertificate($userid, $customcertid) {
+function custommailing_getcertificate($userid, $customcertid) {
 
     global $DB;
 
@@ -409,7 +400,7 @@ function recalluser_getcertificate($userid, $customcertid) {
  * @throws dml_exception
  * @throws moodle_exception
  */
-function recalluser_certifications($customcertid)
+function custommailing_certifications($customcertid)
 {
     global $DB, $COURSE;
 
@@ -421,7 +412,7 @@ function recalluser_certifications($customcertid)
 
     $users = $DB->get_records_sql($sql, ['courseid' => $COURSE->id]);
     foreach ($users as $user) {
-        recalluser_certification($user->id, $customcertid);
+        custommailing_certification($user->id, $customcertid);
     }
 }
 
@@ -432,7 +423,7 @@ function recalluser_certifications($customcertid)
  * @throws dml_exception
  * @throws moodle_exception
  */
-function recalluser_certification($userid, $customcertid)
+function custommailing_certification($userid, $customcertid)
 {
     global $DB, $COURSE;
 
