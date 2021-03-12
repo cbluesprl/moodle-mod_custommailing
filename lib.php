@@ -429,7 +429,14 @@ function custommailing_certification($userid, $customcertid, $courseid)
 {
     global $DB;
 
-    $cm = get_coursemodule_from_id('customcert', $customcertid, $courseid, false, MUST_EXIST);
+    $sql = "SELECT cm.*, m.name, md.name AS modname 
+              FROM {course_modules} cm
+                   JOIN {modules} md ON md.id = cm.module
+                   JOIN {customcert} m ON m.id = cm.instance
+             WHERE cm.instance = :cminstance AND md.name = :modulename AND cm.course = :courseid";
+
+    $cm = $DB->get_record_sql($sql, ['cminstance' => $customcertid, 'modulename' => 'customcert', 'courseid' => $courseid]);
+//    $cm = get_coursemodule_from_id('customcert', $cmid, $courseid, false, MUST_EXIST);
     $modinfo = get_fast_modinfo($courseid);
     $cminfo = $modinfo->get_cm($cm->id);
     $ainfomod = new \core_availability\info_module($cminfo);
