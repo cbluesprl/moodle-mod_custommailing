@@ -246,14 +246,13 @@ function custommailing_logs_generate() {
                 FROM {user} u
                 JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
+        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE && !empty($mailing->mailingdelay)) {
             $sql = "SELECT u.*
                 FROM {user} u
-                JOIN {course_modules} cm ON cm.id = $mailing->targetmoduleid
-                JOIN {course} c ON c.id = cm.course
-                JOIN {enrol} e ON e.courseid = c.id
-                JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id
-                WHERE ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay $delay_range))
+                JOIN {user_enrolments} ue ON ue.userid = u.id
+                JOIN {enrol} e ON e.id = ue.enrolid 
+                WHERE e.courseid = $mailing->courseid AND ue.timestart > UNIX_TIMESTAMP(DATE(NOW() - INTERVAL $mailing->mailingdelay $delay_range))
+                GROUP BY u.id
                 ";
         } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
             $sql = "SELECT u.*
