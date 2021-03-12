@@ -279,7 +279,7 @@ function recalluser_logs_generate() {
             $users = $DB->get_records_sql($sql);
             if (is_array($users)) {
                 foreach ($users as $user) {
-                    if (!$DB->get_record('recalluser_logs', ['recallusermailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
+                    if (validate_email($user->email) && !$DB->get_record('recalluser_logs', ['recallusermailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
                         $record = new stdClass();
                         $record->recallusermailingid = (int) $mailing->id;
                         $record->emailtouserid = (int) $user->id;
@@ -314,9 +314,12 @@ function recalluser_crontask() {
             WHERE rl.emailstatus < " . MAILING_LOG_SENT;
     $logs = $DB->get_recordset_sql($sql);
     foreach ($logs as $log) {
-        $attachment = null;
         if (!empty($log->customcertmoduleid)) {
             $attachment = recalluser_getcertificate($log->userid, $log->customcertmoduleid);
+        } else {
+            $attachment = new stdClass();
+            $attachment->file = '';
+            $attachment->filename = '';
         }
         email_to_user($log, core_user::get_support_user(), $log->mailingsubject, strip_tags($log->mailingcontent), $log->mailingcontent, $attachment->file, $attachment->filename);
         $ids_to_update[] = $log->logid;
