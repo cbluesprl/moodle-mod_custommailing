@@ -24,51 +24,52 @@
  */
 
 $string['pluginname'] = 'custommailing';
-$string['modulename'] = 'custommailing';
-$string['modulenameplural'] = "custommailing's";
-$string['custommailingname'] = "Nom";
+
+$string['andtargetactivitynotcompleted'] = "et que l'activité déclencheuse n'est pas déjà terminée par l'utilisateur";
+$string['atactivitycompleted'] = "Lorsque l'activité déclencheuse est complétée";
+$string['atcourseenrol'] = "A l'inscripiton d'un cours";
+$string['atfirstlaunch'] = "Au premier lancement de l'activité déclencheuse";
+$string['certificate'] = "Certificat";
+$string['confirmdelete'] = 'Êtes-vous sûr de supprimer : {$a}';
+$string['course'] = "Formation";
 $string['coursecompletionenabled'] = "Attention : La complétion du cours a été activée.";
 $string['coursecompletionnotenabled'] = "Erreur : L'activité a été ajoutée mais la complétion du cours n'a pas pu être activée.";
-$string['pluginadministration'] = 'Admnistration custommailing';
-$string['createnewmailing'] = 'Créer un nouveau mailing';
-$string['mailingname'] = 'Nom';
-$string['mailinglang'] = 'Langue';
-$string['targetmoduleid'] = 'Activité déclencheuse';
-$string['daysafter'] = 'jour(s) après :';
 $string['courseenroldate'] = "jour(s) après la date d'inscription au cours";
 $string['courselastaccess'] = "jour(s) après la date de dernière connexion au cours";
-$string['firstlaunch'] = "jour(s) après la date du premier lancement";
-$string['lastlaunch'] = "jour(s) après la date du dernier lancement";
-$string['sendmailing'] = "Envoyer le mailing";
-$string['atfirstlaunch'] = "Au premier lancement de l'activité déclencheuse";
-$string['atcourseenrol'] = "A l'inscripiton d'un cours";
-$string['atactivitycompleted'] = "Lorsque l'activité déclencheuse est complétée";
-$string['mailingsubject'] = "Sujet";
-$string['mailingcontent'] = "Contenu";
-$string['starttime'] = "Heure d'envoi";
 $string['createmailing'] = "Créer le mailing";
-$string['enabled'] = "Actif";
-$string['disabled'] = "Inactif";
-$string['mailingtargetactivitystatusincomplete'] = "Activité déclencheuse ne doit pas être terminée";
-$string['mailingtargetactivitystatuscomplete'] = "Activité déclencheuse doit être terminée";
-$string['targetactivitynotfound'] = "L'activité déclencheuse n'existe pas";
-$string['mailingadded'] = "Mailing ajouté";
-$string['mailingupdated'] = "Mailing mis à jour";
-$string['updatemailing'] = "Mettre à jour le mailing";
-$string['confirmdelete'] = 'Êtes-vous sûr de supprimer : {$a}';
-$string['mailingdeleted'] = 'Mailing supprimé';
-$string['andtargetactivitynotcompleted'] = "et que l'activité déclencheuse n'est pas déjà terminée par l'utilisateur";
+$string['createnewmailing'] = 'Créer un nouveau mailing';
 $string['crontask'] = "Tâche programmée";
-$string['select'] = "Sélectionnez";
-$string['selectsource'] = "Source";
-$string['module'] = "Scorm";
-$string['course'] = "Formation";
-$string['certificate'] = "Certificat";
 $string['customcert'] = "Certificat";
 $string['customcert_help'] = "Un email avec le certificat en pièce jointe sera envoyé à tous les utilisateurs remplissant les conditions d'obtention du certificat";
+$string['custommailingname'] = "Nom";
+$string['daysafter'] = 'jour(s) après :';
 $string['debugmode'] = "debug mode";
+$string['disabled'] = "Inactif";
+$string['enabled'] = "Actif";
+$string['firstlaunch'] = "jour(s) après la date du premier lancement";
+$string['lastlaunch'] = "jour(s) après la date du dernier lancement";
+$string['mailingadded'] = "Mailing ajouté";
+$string['mailingcontent'] = "Contenu";
 $string['mailingcontent_help'] = 'Vous pouvez utiliser les variables suivantes dans le texte du mail :
 <ul>
 <li>%firstname%</li>
 <li>%lastname%</li>
 </ul>';
+$string['mailingdeleted'] = 'Mailing supprimé';
+$string['mailinglang'] = 'Langue';
+$string['mailingname'] = 'Nom';
+$string['mailingsubject'] = "Sujet";
+$string['mailingtargetactivitystatuscomplete'] = "Activité déclencheuse doit être terminée";
+$string['mailingtargetactivitystatusincomplete'] = "Activité déclencheuse ne doit pas être terminée";
+$string['mailingupdated'] = "Mailing mis à jour";
+$string['module'] = "Scorm";
+$string['modulename'] = 'custommailing';
+$string['modulenameplural'] = "custommailing's";
+$string['pluginadministration'] = 'Admnistration custommailing';
+$string['sendmailing'] = "Envoyer le mailing";
+$string['select'] = "Sélectionnez";
+$string['selectsource'] = "Source";
+$string['starttime'] = "Heure d'envoi";
+$string['targetactivitynotfound'] = "L'activité déclencheuse n'existe pas";
+$string['targetmoduleid'] = 'Activité déclencheuse';
+$string['updatemailing'] = "Mettre à jour le mailing";

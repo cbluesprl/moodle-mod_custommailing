@@ -24,51 +24,53 @@
  */
 
 $string['pluginname'] = 'custommailing';
-$string['modulename'] = 'custommailing';
-$string['modulenameplural'] = "custommailing's";
-$string['custommailingname'] = "Name";
+
+$string['andtargetactivitynotcompleted'] = 'and target module is not completed by the user';
+$string['atactivitycompleted'] = "At target module completion";
+$string['atcourseenrol'] = "At course enrol";
+$string['atfirstlaunch'] = "At first launch (target module)";
+$string['certificate'] = "Certificate";
+$string['confirmdelete'] = 'Are you sure to delete this mailing : {$a}';
+$string['course'] = "Course";
 $string['coursecompletionenabled'] = "Warning : course completion has been enabled.";
 $string['coursecompletionnotenabled'] = "Error : The activity was added but course completion could not be enabled.";
-$string['pluginadministration'] = 'custommailing administration';
-$string['createnewmailing'] = 'Create a new mailing';
-$string['mailingname'] = 'Name';
-$string['mailinglang'] = 'Lang';
-$string['targetmoduleid'] = 'Target module';
-$string['daysafter'] = 'day(s) after :';
 $string['courseenroldate'] = "days(s) after course enrol date";
 $string['courselastaccess'] = "days(s) after last course access";
+$string['createmailing'] = "Create mailing";
+$string['createnewmailing'] = 'Create a new mailing';
+$string['crontask'] = "Cron task";
+$string['customcert'] = "Certificate";
+$string['customcert_help'] = "Email with certificate attached will be send to each user who fulfil all requirements of the certificate";
+$string['custommailingname'] = "Name";
+$string['daysafter'] = 'day(s) after :';
+$string['debugmode'] = "debug mode";
+$string['disabled'] = "Disabled";
+$string['enabled'] = "Enabled";
 $string['firstlaunch'] = "days(s) after first launch (target module)";
 $string['lastlaunch'] = "days(s) after last launch (target module)";
-$string['sendmailing'] = "Send mailing";
-$string['atfirstlaunch'] = "At first launch (target module)";
-$string['atcourseenrol'] = "At course enrol";
-$string['atactivitycompleted'] = "At target module completion";
-$string['mailingsubject'] = "Subject";
-$string['mailingcontent'] = "Body";
-$string['starttime'] = "Sending time";
-$string['createmailing'] = "Create mailing";
-$string['enabled'] = "Enabled";
-$string['disabled'] = "Disabled";
-$string['mailingtargetactivitystatusincomplete'] = "Target module incomplete";
-$string['mailingtargetactivitystatuscomplete'] = "Target module complete";
-$string['targetactivitynotfound'] = "Target module not found";
 $string['mailingadded'] = "Mailing added";
-$string['mailingupdated'] = "Mailing updated";
-$string['updatemailing'] = "Update mailing";
-$string['confirmdelete'] = 'Are you sure to delete this mailing : {$a}';
-$string['mailingdeleted'] = 'Mailing deleted';
-$string['andtargetactivitynotcompleted'] = 'and target module is not completed by the user';
-$string['crontask'] = "cron task";
-$string['select'] = "select";
-$string['selectsource'] = "source";
-$string['module'] = "module";
-$string['course'] = "course";
-$string['certificate'] = "certificate";
-$string['customcert'] = "certificate";
-$string['customcert_help'] = "Email with certificate attached will be send to each user who fulfil all requirements of the certificate";
-$string['debugmode'] = "debug mode";
+$string['mailingcontent'] = "Body";
 $string['mailingcontent_help'] = 'You can use the following variables in the mail :
 <ul>
 <li>%firstname%</li>
 <li>%lastname%</li>
 </ul>';
+$string['mailingdeleted'] = 'Mailing deleted';
+$string['mailinglang'] = 'Lang';
+$string['mailingname'] = 'Name';
+$string['mailingsubject'] = "Subject";
+$string['mailingtargetactivitystatuscomplete'] = "Target module complete";
+$string['mailingtargetactivitystatusincomplete'] = "Target module incomplete";
+$string['mailingupdated'] = "Mailing updated";
+$string['module'] = "Scorm";
+$string['modulename'] = 'custommailing';
+$string['modulenameplural'] = "custommailing's";
+$string['pluginadministration'] = 'custommailing administration';
+$string['select'] = "Select";
+$string['selectsource'] = "Source";
+$string['sendmailing'] = "Send mailing";
+$string['starttime'] = "Sending time";
+$string['targetactivitynotfound'] = "Target module not found";
+$string['targetmoduleid'] = 'Target module';
+$string['updatemailing'] = "Update mailing";
+
