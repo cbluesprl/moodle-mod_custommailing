@@ -95,8 +95,7 @@ foreach ($mailings as $mailing) {
            <div id="mailing_' . $mailing->id . '_content" class="collapse" aria-labelledby="mailing_' . $mailing->id . '" data-parent="#mailingsList">
              <div class="card-body">
                 <p><strong>ID</strong> : ' . $mailing->id . '</p>
-                <p><strong>' . get_string('custommailingname', 'custommailing') . '</strong> : ' . $mailing->mailingname . '</p>
-                <p><strong>' . get_string('mailinglang', 'custommailing') . '</strong> : ' . $mailing->mailinglang . '</p>';
+                <p><strong>' . get_string('custommailingname', 'custommailing') . '</strong> : ' . $mailing->mailingname . '</p>';
     if (empty($mailing->targetmoduleid)) {
         echo    '<p><strong>' . get_string('targetmoduleid', 'custommailing') . '</strong> : - </p>';
     } else {

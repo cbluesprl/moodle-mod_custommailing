@@ -24,7 +24,7 @@
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="custommailingid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="custommailing activity ID"/>
                 <FIELD NAME="mailingname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Mailing name"/>
-                <FIELD NAME="mailinglang" TYPE="char" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="Mailing lang (EN, FR, NL, ...)"/>
+                <FIELD NAME="mailinglang" TYPE="char" LENGTH="4" NOTNULL="true" DEFAULT="en" SEQUENCE="false" COMMENT="Mailing lang (EN, FR, NL, ...)"/>
                 <FIELD NAME="mailingsubject" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The subject of the mailing"/>
                 <FIELD NAME="mailingcontent" TYPE="text" LENGTH="4" NOTNULL="true" SEQUENCE="false" COMMENT="The content of the mailing"/>
                 <FIELD NAME="mailingcontentformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the mailing content field."/>

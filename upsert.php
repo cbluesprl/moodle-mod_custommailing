@@ -69,7 +69,7 @@ if ($form->is_cancelled()) {
 
     $mailing->custommailingid = (int) $custommailing->id;
     $mailing->mailingname = $data->mailingname;
-    $mailing->mailinglang = $data->mailinglang;
+    $mailing->mailinglang = 'en'; //disabled in v1
     $mailing->mailingsubject = $data->mailingsubject;
     $mailing->mailingcontent = $data->mailingcontent['text'];
     $mailing->mailingcontentformat = $data->mailingcontent['format'];

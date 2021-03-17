@@ -103,9 +103,9 @@ class mailing_form extends moodleform
         $mform->addRule('mailingname', get_string('required'), 'required');
 
         // Add lang
-        $mform->addElement('select', 'mailinglang', get_string('mailinglang', 'mod_custommailing'), get_string_manager()->get_list_of_translations());
-        $mform->setType('mailinglang', PARAM_LANG);
-        $mform->addRule('mailinglang', get_string('required'), 'required');
+//        $mform->addElement('select', 'mailinglang', get_string('mailinglang', 'mod_custommailing'), get_string_manager()->get_list_of_translations());
+//        $mform->setType('mailinglang', PARAM_LANG);
+//        $mform->addRule('mailinglang', get_string('required'), 'required');
 
         // Select Source
         $mform->addElement('select', 'source', get_string('selectsource', 'mod_custommailing'), $source);
