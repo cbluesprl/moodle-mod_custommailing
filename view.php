@@ -94,7 +94,6 @@ foreach ($mailings as $mailing) {
         
            <div id="mailing_' . $mailing->id . '_content" class="collapse" aria-labelledby="mailing_' . $mailing->id . '" data-parent="#mailingsList">
              <div class="card-body">
-                <p><strong>ID</strong> : ' . $mailing->id . '</p>
                 <p><strong>' . get_string('custommailingname', 'custommailing') . '</strong> : ' . $mailing->mailingname . '</p>';
     if (empty($mailing->targetmoduleid)) {
         echo    '<p><strong>' . get_string('targetmoduleid', 'custommailing') . '</strong> : - </p>';
@@ -103,8 +102,7 @@ foreach ($mailings as $mailing) {
     }
     echo        '<p><strong>' . get_string('sendmailing', 'custommailing') . '</strong> : ' . $mailing->mailingmodestr . '</p>
                 <p><strong>' . get_string('mailingsubject', 'custommailing') . '</strong> : ' . $mailing->mailingsubject . '</p>
-                <p><strong>' . get_string('mailingcontent', 'custommailing') . '</strong> : ' . $mailing->mailingcontent . '</p>
-                <p><strong>' . get_string('starttime', 'custommailing') . '</strong> : ' .  str_pad(floor($mailing->starttime / 3600), 2, '0', STR_PAD_LEFT) . ' : ' . str_pad(floor(($mailing->starttime / 60) % 60), 2, '0', STR_PAD_LEFT) . '</p>';
+                <p><strong>' . get_string('mailingcontent', 'custommailing') . '</strong> : ' . $mailing->mailingcontent . '</p>';
     echo     '</div>
            </div>
         </div>';
