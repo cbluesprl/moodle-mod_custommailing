@@ -147,22 +147,22 @@ class mailing_form extends moodleform
         $mform->hideIf('mailingmodemoduleoption', 'source', 'noteq', 1);
         $mform->hideIf('mailingmodemodulegroup', 'source', 'noteq', 1);
 
-        $mailing_mode[] =& $mform->createElement('radio', 'mailingmode', null, '', 'option');
-        $mailing_mode[] =& $mform->createElement('select', 'mailingdelay', null, $days);
-        $mailing_mode[] =& $mform->createElement(
-            'select', 'mailingmodeoption', null, [
-                MAILING_MODE_DAYSFROMINSCRIPTIONDATE => get_string('courseenroldate', 'mod_custommailing'),
-                MAILING_MODE_DAYSFROMLASTCONNECTION => get_string('courselastaccess', 'mod_custommailing'),
-            ]
-        );
-        $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_custommailing'), ' ', false);
+//        $mailing_mode[] =& $mform->createElement('radio', 'mailingmode', null, '', 'option');
+//        $mailing_mode[] =& $mform->createElement('select', 'mailingdelay', null, $days);
+//        $mailing_mode[] =& $mform->createElement(
+//            'select', 'mailingmodeoption', null, [
+//                MAILING_MODE_DAYSFROMINSCRIPTIONDATE => get_string('courseenroldate', 'mod_custommailing'),
+//                MAILING_MODE_DAYSFROMLASTCONNECTION => get_string('courselastaccess', 'mod_custommailing'),
+//            ]
+//        );
+//        $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_custommailing'), ' ', false);
         $mform->addElement('radio', 'mailingmode', null, get_string('atcourseenrol', 'mod_custommailing'), MAILING_MODE_REGISTRATION);
         $mform->setType('mailingmode', PARAM_INT);
         $mform->setDefault('mailingmode', 0);
         $mform->hideIf('mailingmode', 'source', 'noteq', 2);
-        $mform->hideIf('mailingdelay', 'source', 'noteq', 2);
-        $mform->hideIf('mailingmodeoption', 'source', 'noteq', 2);
-        $mform->hideIf('mailingmodegroup', 'source', 'noteq', 2);
+//        $mform->hideIf('mailingdelay', 'source', 'noteq', 2);
+//        $mform->hideIf('mailingmodeoption', 'source', 'noteq', 2);
+//        $mform->hideIf('mailingmodegroup', 'source', 'noteq', 2);
 
         // Add subject
         $mform->addElement('text', 'mailingsubject', get_string('mailingsubject', 'mod_custommailing'));
