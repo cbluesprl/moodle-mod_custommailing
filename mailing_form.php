@@ -110,7 +110,6 @@ class mailing_form extends moodleform
         // Select Source
         $mform->addElement('select', 'source', get_string('selectsource', 'mod_custommailing'), $source);
         $mform->setType('source', PARAM_INT);
-        $mform->addRule('source', get_string('required'), 'required');
         if (!empty($this->_customdata['mailingid'])) {
             $mform->disabledIf('source', 'mailingid', 'noteq', 0);
         }
