@@ -173,6 +173,7 @@ class mailing_form extends moodleform
         $mform->addElement('editor', 'mailingcontent', get_string('mailingcontent', 'mod_custommailing'), '', ['enable_filemanagement' => false]);
         $mform->setType('mailingcontent', PARAM_RAW);
         $mform->addRule('mailingcontent', get_string('required'), 'required');
+        $mform->addHelpButton('mailingcontent', 'mailingcontent', 'mod_custommailing');
 
         // Add start time
         //Todo v2 : starttime

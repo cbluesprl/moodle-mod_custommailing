@@ -67,3 +67,8 @@ $string['certificate'] = "Certificat";
 $string['customcert'] = "Certificat";
 $string['customcert_help'] = "Un email avec le certificat en pièce jointe sera envoyé à tous les utilisateurs remplissant les conditions d'obtention du certificat";
 $string['debugmode'] = "debug mode";
+$string['mailingcontent_help'] = 'Vous pouvez utiliser les variables suivantes dans le texte du mail :
+<ul>
+<li>%firstname%</li>
+<li>%lastname%</li>
+</ul>';
