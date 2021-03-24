@@ -52,9 +52,10 @@ class mod_custommailing_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $mform->addElement('selectyesno', 'debugmode', get_string('debugmode', 'mod_custommailing'));
-        $mform->setType('debugmode', PARAM_BOOL);
-        $mform->setDefault('debugmode', 1);
+        $config = get_config('custommailing');
+        if (!empty($config->debugmode)) {
+            $mform->addElement('html', html_writer::div(get_string('debugmode', 'mod_custommailing') . ' : ' . get_string('debugmode_help', 'mod_custommailing'), 'alert alert-danger'));
+        }
 
         // Adding the standard "intro" fields.
         $this->standard_intro_elements();

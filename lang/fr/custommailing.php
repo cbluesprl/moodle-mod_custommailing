@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'custommailing';
+$string['pluginname'] = 'Custom Mailing';
 
 $string['andtargetactivitynotcompleted'] = "et que l'activité déclencheuse n'est pas déjà terminée par l'utilisateur";
 $string['atactivitycompleted'] = "Lorsque l'activité déclencheuse est complétée";
@@ -43,7 +43,8 @@ $string['customcert'] = "Certificat";
 $string['customcert_help'] = "Un email avec le certificat en pièce jointe sera envoyé à tous les utilisateurs remplissant les conditions d'obtention du certificat";
 $string['custommailingname'] = "Nom";
 $string['daysafter'] = 'jour(s) après :';
-$string['debugmode'] = "debug mode";
+$string['debugmode'] = "Mode debug";
+$string['debugmode_help'] = "Délai d'envoi en minutes au lieu de jours";
 $string['disabled'] = "Inactif";
 $string['enabled'] = "Actif";
 $string['firstlaunch'] = "jour(s) après la date du premier lancement";
@@ -69,6 +70,7 @@ $string['pluginadministration'] = 'Admnistration Mailing personnalisé';
 $string['sendmailing'] = "Envoyer le mailing";
 $string['select'] = "Sélectionnez";
 $string['selectsource'] = "Source";
+$string['settings'] = "Paramètres";
 $string['starttime'] = "Heure d'envoi";
 $string['targetactivitynotfound'] = "L'activité déclencheuse n'existe pas";
 $string['targetmoduleid'] = 'Activité déclencheuse';

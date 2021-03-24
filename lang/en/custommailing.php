@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'custommailing';
+$string['pluginname'] = 'Custom Mailing';
 
 $string['andtargetactivitynotcompleted'] = 'and target module is not completed by the user';
 $string['atactivitycompleted'] = "At target module completion";
@@ -44,6 +44,7 @@ $string['customcert_help'] = "Email with certificate attached will be send to ea
 $string['custommailingname'] = "Name";
 $string['daysafter'] = 'day(s) after :';
 $string['debugmode'] = "debug mode";
+$string['debugmode_help'] = "mailing delay in minutes instead of days";
 $string['disabled'] = "Disabled";
 $string['enabled'] = "Enabled";
 $string['firstlaunch'] = "days(s) after first launch (target module)";
@@ -69,6 +70,7 @@ $string['pluginadministration'] = 'custommailing administration';
 $string['select'] = "Select";
 $string['selectsource'] = "Source";
 $string['sendmailing'] = "Send mailing";
+$string['settings'] = "Settings";
 $string['starttime'] = "Sending time";
 $string['targetactivitynotfound'] = "Target module not found";
 $string['targetmoduleid'] = 'Target module';
