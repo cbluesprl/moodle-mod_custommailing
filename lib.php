@@ -211,92 +211,13 @@ function custommailing_getcustomcertsfromcourse($courseid)
  * @throws dml_exception
  * @throws moodle_exception
  */
-function custommailing_logs_generate() {
-
+function custommailing_logs_generate()
+{
     global $DB;
-
-    $config = get_config('custommailing');
-    if (!empty($config->debugmode)) {
-        $delay_range = 'MINUTE';
-    } else {
-        $delay_range = 'DAY';
-    }
 
     $mailings = Mailing::getAllToSend();
     foreach ($mailings as $mailing) {
-        $sql = false;
-        // target module completion
-        if (!empty($mailing->targetmodulestatus)) {
-            $sql_completion = " AND cmc.completionstate IN (0,3)";
-            $sql_where = '';
-        } else {
-            $sql_completion = " AND cmc.completionstate IN (1,2)";
-            $sql_where = " AND cmc.id IS NOT NULL";
-        }
-        // mailing modes
-        if ($mailing->mailingmode == MAILING_MODE_FIRSTLAUNCH && !empty($mailing->targetmoduleid)) {
-            $sql = "SELECT u.*
-                FROM {user} u
-                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
-                GROUP BY u.id
-                ORDER BY lsl.id
-                ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($mailing->courseid)) {
-            //ToDo : check if user enrolled with different enrol methods to same course
-            $sql = "SELECT u.*
-                FROM {user} u
-                JOIN {user_enrolments} ue ON ue.userid = u.id
-                JOIN {enrol} e ON e.id = ue.enrolid 
-                WHERE e.courseid = $mailing->courseid
-                GROUP BY u.id
-                ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE && !empty($mailing->targetmoduleid)) {
-            $sql = "SELECT u.*
-                FROM {user} u
-                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
-                ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE && !empty($mailing->mailingdelay)) {
-            $sql = "SELECT u.*
-                FROM {user} u
-                JOIN {user_enrolments} ue ON ue.userid = u.id
-                JOIN {enrol} e ON e.id = ue.enrolid 
-                WHERE e.courseid = $mailing->courseid AND ue.timestart < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
-                GROUP BY u.id
-                ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
-            $sql = "SELECT u.*
-                FROM {user} u
-                JOIN {course} c ON c.id = $mailing->courseid
-                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
-                GROUP BY u.id
-                ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
-            //ToDo : other modules than scorm
-            $sql = "SELECT u.*
-                FROM {user} u
-                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
-                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid $sql_completion
-                WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_where
-                GROUP BY u.id
-                ORDER BY lsl.id DESC
-                ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
-            //ToDo : other modules than scorm
-            $sql = "SELECT u.*
-                FROM {user} u
-                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
-                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid $sql_completion
-                WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_where
-                GROUP BY u.id
-                ORDER BY lsl.id ASC
-                ";
-        } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
-            custommailing_certifications($mailing->customcertmoduleid, $mailing->courseid);
-            $sql = "SELECT u.*
-                FROM {user} u
-                JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = $mailing->customcertmoduleid
-                ";
-        }
+        $sql = custommailing_getsql($mailing);
         if ($sql) {
             $users = $DB->get_records_sql($sql);
             if (is_array($users)) {
@@ -313,6 +234,135 @@ function custommailing_logs_generate() {
             }
         }
     }
+}
+
+/**
+ * @param object $mailing
+ * @return false|string
+ * @throws coding_exception
+ * @throws dml_exception
+ * @throws moodle_exception
+ */
+function custommailing_getsql($mailing)
+{
+    $sql = false;
+
+    $config = get_config('custommailing');
+    if (!empty($config->debugmode)) {
+        $delay_range = 'MINUTE';
+    } else {
+        $delay_range = 'DAY';
+    }
+
+    // target module completion
+    if (!empty($mailing->targetmodulestatus)) {
+        $sql_completion = " AND cmc.completionstate IN (0,3)";
+        $sql_where = '';
+    } else {
+        $sql_completion = " AND cmc.completionstate IN (1,2)";
+        $sql_where = " AND cmc.id IS NOT NULL";
+    }
+
+    // mailing modes
+    if ($mailing->mailingmode == MAILING_MODE_FIRSTLAUNCH && !empty($mailing->targetmoduleid)) {
+        $sql = "SELECT u.*
+                FROM {user} u
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
+                GROUP BY u.id
+                ORDER BY lsl.id
+                ";
+    } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($mailing->courseid)) {
+        // retroactive mode
+        if (!$mailing->retroactive) {
+            $sql_retro = " AND ue.timestart >= " . $mailing->timecreated;
+        } else {
+            $sql_retro = '';
+        }
+        //ToDo : check if user enrolled with different enrol methods to same course
+        $sql = "SELECT u.*
+                FROM {user} u
+                JOIN {user_enrolments} ue ON ue.userid = u.id
+                JOIN {enrol} e ON e.id = ue.enrolid 
+                WHERE e.courseid = $mailing->courseid $sql_retro
+                GROUP BY u.id
+                ";
+    } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE && !empty($mailing->targetmoduleid)) {
+        $sql = "SELECT u.*
+                FROM {user} u
+                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
+                ";
+    } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE && !empty($mailing->mailingdelay)) {
+        $sql = "SELECT u.*
+                FROM {user} u
+                JOIN {user_enrolments} ue ON ue.userid = u.id
+                JOIN {enrol} e ON e.id = ue.enrolid 
+                WHERE e.courseid = $mailing->courseid AND ue.timestart < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
+                GROUP BY u.id
+                ";
+    } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
+        $sql = "SELECT u.*
+                FROM {user} u
+                JOIN {course} c ON c.id = $mailing->courseid
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
+                GROUP BY u.id
+                ";
+    } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
+        // retroactive mode
+        if (!$mailing->retroactive) {
+            $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
+                            JOIN {enrol} e ON e.id = ue.enrolid ";
+            $sql_where .= " AND ue.timestart >= " . $mailing->timecreated;
+        } else {
+            $join_retro = '';
+        }
+        //ToDo : other modules than scorm
+        $sql = "SELECT u.*
+                FROM {user} u
+                $join_retro
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
+                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid $sql_completion
+                WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_where
+                GROUP BY u.id
+                ORDER BY lsl.id DESC
+                ";
+    } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
+        // retroactive mode
+        if (!$mailing->retroactive) {
+            $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
+                            JOIN {enrol} e ON e.id = ue.enrolid ";
+            $sql_where .= " AND ue.timestart >= " . $mailing->timecreated;
+        } else {
+            $join_retro = '';
+        }
+        //ToDo : other modules than scorm
+        $sql = "SELECT u.*
+                FROM {user} u
+                $join_retro
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
+                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid $sql_completion
+                WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_where
+                GROUP BY u.id
+                ORDER BY lsl.id ASC
+                ";
+    } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
+        custommailing_certifications($mailing->customcertmoduleid, $mailing->courseid);
+        // retroactive mode
+        if (!$mailing->retroactive) {
+            $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
+                            JOIN {enrol} e ON e.id = ue.enrolid ";
+            $sql_where = " WHERE ue.timestart >= " . $mailing->timecreated;
+        } else {
+            $join_retro = '';
+            $sql_where = '';
+        }
+        $sql = "SELECT u.*
+                FROM {user} u
+                $join_retro
+                JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = $mailing->customcertmoduleid
+                $sql_where
+                ";
+    }
+    return $sql;
 }
 
 /**

@@ -89,6 +89,7 @@ if ($form->is_cancelled()) {
         $mailing->mailingdelay = null;
     }
     $mailing->mailingstatus = (bool) $data->mailingstatus;
+    $mailing->retroactive = (bool) $mailing->retroactive;
     if (empty($data->targetmoduleid)) {
         $data->targetmoduleid = 0;
     }

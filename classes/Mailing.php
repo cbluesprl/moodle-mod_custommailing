@@ -189,6 +189,7 @@ class Mailing {
         $record->mailingmode = (int) $record->mailingmode;
         $record->mailingdelay = (int) $record->mailingdelay;
         $record->mailingstatus = (bool) $record->mailingstatus;
+        $record->retroactive = (bool) $record->retroactive;
         $record->targetmoduleid = (int) $record->targetmoduleid;
         $record->targetmodulestatus = (int) $record->targetmodulestatus;
         $record->customcertmoduleid = empty($record->customcertmoduleid) ? null : (int) $record->customcertmoduleid;

@@ -31,6 +31,7 @@
                 <FIELD NAME="mailingmode" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The mode of the mailing (see locallib.php)"/>
                 <FIELD NAME="mailingdelay" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="7" SEQUENCE="false" COMMENT="The delay of the mailing (days)"/>
                 <FIELD NAME="mailingstatus" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="The mailing status (enabled / disabled)"/>
+                <FIELD NAME="retroactive" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="The mailing retroactive mode (enabled / disabled)"/>
                 <FIELD NAME="targetmoduleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The linked module ID (triggering activity)"/>
                 <FIELD NAME="targetmodulestatus" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="The linked module status (triggering activity)"/>
                 <FIELD NAME="customcertmoduleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The linked module customcert ID (optional)"/>

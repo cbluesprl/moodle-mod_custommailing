@@ -164,6 +164,15 @@ class mailing_form extends moodleform
 //        $mform->hideIf('mailingmodeoption', 'source', 'noteq', 2);
 //        $mform->hideIf('mailingmodegroup', 'source', 'noteq', 2);
 
+        // Add retroactive mode
+        $mform->addElement('selectyesno', 'retroactive', get_string('retroactive', 'mod_custommailing'));
+        $mform->setType('retroactive', PARAM_BOOL);
+        $mform->setDefault('retroactive', 1);
+        $mform->addHelpButton('retroactive', 'retroactive', 'mod_custommailing');
+        if (!empty($this->_customdata['mailingid'])) {
+            $mform->disabledIf('retroactive', 'mailingid', 'noteq', 0);
+        }
+
         // Add subject
         $mform->addElement('text', 'mailingsubject', get_string('mailingsubject', 'mod_custommailing'));
         $mform->setType('mailingsubject', PARAM_RAW_TRIMMED);
