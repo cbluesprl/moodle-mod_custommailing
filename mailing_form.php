@@ -46,6 +46,9 @@ class mailing_form extends moodleform
         $mform =& $this->_form;
         $course_module_context = $PAGE->context;
         $custom_cert = core_plugin_manager::instance()->get_plugin_info('mod_customcert');
+        if (!empty($this->_customdata['mailingid'])) {
+            $mailing = \mod_custommailing\Mailing::get($this->_customdata['mailingid']);
+        }
 
         $days = [];
         for ($i = 1; $i <= 30; $i++) {
@@ -125,6 +128,9 @@ class mailing_form extends moodleform
             $mform->setType('customcert', PARAM_INT);
             $mform->hideIf('customcert', 'source', 'noteq', 3);
             $mform->addHelpButton('customcert', 'customcert', 'mod_custommailing');
+            if (!empty($mailing->customcertmoduleid)) {
+                $mform->setDefault('customcert', $mailing->customcertmoduleid);
+            }
         }
 
         // Add mode
@@ -146,6 +152,12 @@ class mailing_form extends moodleform
         $mform->hideIf('mailingdelaymodule', 'source', 'noteq', 1);
         $mform->hideIf('mailingmodemoduleoption', 'source', 'noteq', 1);
         $mform->hideIf('mailingmodemodulegroup', 'source', 'noteq', 1);
+        if (!empty($mailing->targetmodulestatus)) {
+            $mform->setDefault('mailingmodecompletion', $mailing->targetmodulestatus);
+        }
+        if (!empty($mailing->mailingdelay)) {
+            $mform->setDefault('mailingdelaymodule', $mailing->mailingdelay);
+        }
 
 //        $mailing_mode[] =& $mform->createElement('radio', 'mailingmode', null, '', 'option');
 //        $mailing_mode[] =& $mform->createElement('select', 'mailingdelay', null, $days);

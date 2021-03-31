@@ -207,6 +207,24 @@ function custommailing_getcustomcertsfromcourse($courseid)
 }
 
 /**
+ * @param int $customcertmoduleid
+ * @return false|mixed|stdClass
+ * @throws dml_exception
+ */
+function custommailing_getCmFromCustomcertInstance($customcertmoduleid)
+{
+    global $DB;
+
+    $module = $DB->get_record('modules', ['name' => 'customcert']);
+
+    if (!empty($module->id)) {
+        return $DB->get_record('course_modules', ['instance' => $customcertmoduleid, 'module' => $module->id]);
+    } else {
+        return false;
+    }
+}
+
+/**
  * @throws coding_exception
  * @throws dml_exception
  * @throws moodle_exception
