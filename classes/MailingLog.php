@@ -54,23 +54,41 @@ class MailingLog
     }
 
     /**
-     * @param int $custommailing_mailing_id
-     * @param int $status
-     * @return stdClass[]
+     * @param null|array $conditions
+     * @return array
      * @throws dml_exception
      */
-    public static function getAll(int $custommailing_mailing_id, int $status = -1) {
+    public static function getAll($conditions = null) {
         global $DB;
-
-        $conditions = ['custommailingmailingid' => $custommailing_mailing_id];
-        if ($status >= 0) {
-            $conditions['emailstatus'] = $status;
-        }
 
         $records = [];
         $rs = $DB->get_recordset('custommailing_logs', $conditions, 'ORDER BY id');
         foreach ($rs as $record) {
             $record = MailingLog::format($record);
+            $records[$record->id] = $record;
+        }
+        $rs->close();
+
+        return $records;
+    }
+
+    /**
+     * @param int $custommailingid
+     * @return array
+     * @throws dml_exception
+     */
+    public static function getAllForTable(int $custommailingid) {
+        global $DB;
+
+        $records = [];
+        $sql = "SELECT cl.id, cm.mailingname, CONCAT(u.firstname, ' ', u.lastname, ' - ', u.email), cl.timecreated, cl.emailstatus 
+                FROM {custommailing_logs} cl
+                JOIN {custommailing_mailing} cm ON cm.id = cl.custommailingmailingid
+                JOIN {user} u ON u.id = cl.emailtouserid
+                WHERE cm.custommailingid = :custommailingid
+                ORDER BY cl.id DESC";
+        $rs = $DB->get_recordset_sql($sql, ['custommailingid' => $custommailingid]);
+        foreach ($rs as $record) {
             $records[$record->id] = $record;
         }
         $rs->close();

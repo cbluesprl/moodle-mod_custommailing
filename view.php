@@ -109,5 +109,6 @@ foreach ($mailings as $mailing) {
 }
 echo '</div>'; // mailingsList
 echo '<hr>';
+echo '<a class="btn btn-primary" href="' . (new moodle_url('/mod/custommailing/logs.php', ['id' => $id]))->out(false) . '">' . get_string('logtable', 'mod_custommailing') . '</a>';
 
 echo $OUTPUT->footer();

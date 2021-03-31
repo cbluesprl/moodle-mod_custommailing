@@ -56,7 +56,7 @@ $event->add_record_snapshot('course', $course);
 $event->trigger();
 
 // Print the header.
-$PAGE->set_title(format_string(get_string('modulename', 'reengagement')));
+$PAGE->set_title(format_string(get_string('modulename', 'custommailing')));
 $PAGE->set_heading(format_string($course->fullname));
 echo $OUTPUT->header();
 
