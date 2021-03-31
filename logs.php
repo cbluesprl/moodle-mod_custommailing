@@ -94,5 +94,6 @@ foreach ($logs as $log) {
 }
 
 echo html_writer::table($table);
+echo html_writer::link(new moodle_url('/mod/custommailing/view.php', ['id' => $cm->id]), get_string('back'), ['class' => 'btn btn-primary']);
 
 echo $OUTPUT->footer();
