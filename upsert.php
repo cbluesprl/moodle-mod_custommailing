@@ -89,7 +89,7 @@ if ($form->is_cancelled()) {
         $mailing->mailingdelay = null;
     }
     $mailing->mailingstatus = (bool) $data->mailingstatus;
-    $mailing->retroactive = (bool) $mailing->retroactive;
+    $mailing->retroactive = (bool) $data->retroactive;
     if (empty($data->targetmoduleid)) {
         $data->targetmoduleid = 0;
     }
@@ -136,6 +136,7 @@ if ($form->is_cancelled()) {
         } else {
             $data->source = MAILING_SOURCE_COURSE;
         }
+        $data->retroactive = $mailing->retroactive;
         $form->set_data($data);
     }
     $form->display();
