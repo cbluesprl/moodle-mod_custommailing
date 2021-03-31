@@ -225,6 +225,18 @@ function custommailing_getCmFromCustomcertInstance($customcertmoduleid)
 }
 
 /**
+ * @param int $customcertid
+ * @return false|mixed|stdClass
+ * @throws dml_exception
+ */
+function custommailing_getCustomcert($customcertid)
+{
+    global $DB;
+
+    return $DB->get_record('customcert', ['id' => $customcertid]);
+}
+
+/**
  * @throws coding_exception
  * @throws dml_exception
  * @throws moodle_exception

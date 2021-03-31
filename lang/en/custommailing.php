@@ -82,5 +82,7 @@ $string['settings'] = "Settings";
 $string['starttime'] = "Sending time";
 $string['targetactivitynotfound'] = "Target module not found";
 $string['targetmoduleid'] = 'Target module';
+$string['timecreated'] = 'Time created';
+$string['timemodified'] = 'Time modified';
 $string['updatemailing'] = "Update mailing";
 

@@ -95,14 +95,20 @@ foreach ($mailings as $mailing) {
            <div id="mailing_' . $mailing->id . '_content" class="collapse" aria-labelledby="mailing_' . $mailing->id . '" data-parent="#mailingsList">
              <div class="card-body">
                 <p><strong>' . get_string('custommailingname', 'custommailing') . '</strong> : ' . $mailing->mailingname . '</p>';
-    if (empty($mailing->targetmoduleid)) {
+    if (!empty($mailing->customcertmoduleid)) {
+        echo '<p><strong>' . get_string('targetmoduleid', 'custommailing') . '</strong> : ' . custommailing_getCustomcert($mailing->customcertmoduleid)->name . ' </p>';
+        $mailing->mailingmodestr = get_string('customcert_help', 'custommailing');
+    } elseif (empty($mailing->targetmoduleid)) {
         echo    '<p><strong>' . get_string('targetmoduleid', 'custommailing') . '</strong> : - </p>';
     } else {
         echo    '<p><strong>' . get_string('targetmoduleid', 'custommailing') . '</strong> : ' . (isset($activities[$mailing->targetmoduleid]) ? $activities[$mailing->targetmoduleid] : 'not found') . '</p>';
     }
     echo        '<p><strong>' . get_string('sendmailing', 'custommailing') . '</strong> : ' . $mailing->mailingmodestr . '</p>
                 <p><strong>' . get_string('mailingsubject', 'custommailing') . '</strong> : ' . $mailing->mailingsubject . '</p>
-                <p><strong>' . get_string('mailingcontent', 'custommailing') . '</strong> : ' . $mailing->mailingcontent . '</p>';
+                <p><strong>' . get_string('mailingcontent', 'custommailing') . '</strong> : ' . $mailing->mailingcontent . '</p>
+                <p><strong>' . get_string('timecreated', 'custommailing') . '</strong> : ' . userdate($mailing->timecreated) . '</p>
+                <p><strong>' . get_string('timemodified', 'custommailing') . '</strong> : ' . userdate($mailing->timemodified) . '</p>
+                ';
     echo     '</div>
            </div>
         </div>';
