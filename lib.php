@@ -338,7 +338,7 @@ function custommailing_getsql($mailing)
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
         // retroactive mode
         if (!$mailing->retroactive) {
-            $sql_retro = " AND lsl.timestart >= " . $mailing->timecreated;
+            $sql_retro = " AND lsl.timecreated >= " . $mailing->timecreated;
         } else {
             $sql_retro = '';
         }
