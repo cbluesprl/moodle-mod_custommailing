@@ -105,7 +105,7 @@ class mailing_form extends moodleform
         $mform->setType('mailingname', PARAM_RAW_TRIMMED);
         $mform->addRule('mailingname', get_string('required'), 'required');
 
-        // Add lang
+        // Todo v2 : Add lang
 //        $mform->addElement('select', 'mailinglang', get_string('mailinglang', 'mod_custommailing'), get_string_manager()->get_list_of_translations());
 //        $mform->setType('mailinglang', PARAM_LANG);
 //        $mform->addRule('mailinglang', get_string('required'), 'required');
@@ -152,29 +152,37 @@ class mailing_form extends moodleform
         $mform->hideIf('mailingdelaymodule', 'source', 'noteq', 1);
         $mform->hideIf('mailingmodemoduleoption', 'source', 'noteq', 1);
         $mform->hideIf('mailingmodemodulegroup', 'source', 'noteq', 1);
-        if (!empty($mailing->targetmodulestatus)) {
-            $mform->setDefault('mailingmodecompletion', $mailing->targetmodulestatus);
-        }
-        if (!empty($mailing->mailingdelay)) {
-            $mform->setDefault('mailingdelaymodule', $mailing->mailingdelay);
+        if (!empty($source[MAILING_SOURCE_COURSE]) && !empty($mailing->mailingmode)) {
+            $mform->setDefault('mailingmodemoduleoption', $mailing->mailingmode);
+            if (!empty($mailing->mailingdelay)) {
+                $mform->setDefault('mailingdelaymodule', $mailing->mailingdelay);
+            }
         }
 
-//        $mailing_mode[] =& $mform->createElement('radio', 'mailingmode', null, '', 'option');
-//        $mailing_mode[] =& $mform->createElement('select', 'mailingdelay', null, $days);
-//        $mailing_mode[] =& $mform->createElement(
-//            'select', 'mailingmodeoption', null, [
-//                MAILING_MODE_DAYSFROMINSCRIPTIONDATE => get_string('courseenroldate', 'mod_custommailing'),
-//                MAILING_MODE_DAYSFROMLASTCONNECTION => get_string('courselastaccess', 'mod_custommailing'),
-//            ]
-//        );
-//        $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_custommailing'), ' ', false);
+        $mailing_mode[] =& $mform->createElement('radio', 'mailingmode', null, '', 'option');
+        $mailing_mode[] =& $mform->createElement('select', 'mailingdelay', null, $days);
+        $mailing_mode[] =& $mform->createElement(
+            'select', 'mailingmodeoption', null, [
+                MAILING_MODE_DAYSFROMINSCRIPTIONDATE => get_string('courseenroldate', 'mod_custommailing'),
+                MAILING_MODE_DAYSFROMLASTCONNECTION => get_string('courselastaccess', 'mod_custommailing'),
+            ]
+        );
+        $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_custommailing'), ' ', false);
         $mform->addElement('radio', 'mailingmode', null, get_string('atcourseenrol', 'mod_custommailing'), MAILING_MODE_REGISTRATION);
         $mform->setType('mailingmode', PARAM_INT);
         $mform->setDefault('mailingmode', 0);
         $mform->hideIf('mailingmode', 'source', 'noteq', 2);
-//        $mform->hideIf('mailingdelay', 'source', 'noteq', 2);
-//        $mform->hideIf('mailingmodeoption', 'source', 'noteq', 2);
-//        $mform->hideIf('mailingmodegroup', 'source', 'noteq', 2);
+        $mform->hideIf('mailingdelay', 'source', 'noteq', 2);
+        $mform->hideIf('mailingmodeoption', 'source', 'noteq', 2);
+        $mform->hideIf('mailingmodegroup', 'source', 'noteq', 2);
+        if (!empty($mailing->targetmodulestatus)) {
+            $mform->setDefault('mailingmodecompletion', $mailing->targetmodulestatus);
+            $mform->setDefault('mailingmode', $mailing->mailingmode);
+            $mform->setDefault('mailingmodeoption', $mailing->mailingmode);
+            if (!empty($mailing->mailingdelay)) {
+                $mform->setDefault('mailingdelay', $mailing->mailingdelay);
+            }
+        }
 
         // Add retroactive mode
         $mform->addElement('selectyesno', 'retroactive', get_string('retroactive', 'mod_custommailing'));
@@ -196,7 +204,6 @@ class mailing_form extends moodleform
         $mform->addRule('mailingcontent', get_string('required'), 'required');
         $mform->addHelpButton('mailingcontent', 'mailingcontent', 'mod_custommailing');
 
-        // Add start time
         //Todo v2 : starttime
 //        $start_time = [];
 //        $start_time[] =& $mform->createElement('select', 'starttimehour', '', $hours);
@@ -229,11 +236,6 @@ class mailing_form extends moodleform
     public function validation($data, $files)
     {
         $errors = parent::validation($data, $files);
-//        if (empty(custommailing_get_activities()[(int) $data['targetmoduleid']])) {
-//            $errors['targetmoduleid'] = get_string('targetactivitynotfound', 'mod_custommailing');
-//        }
-
-        // TODO : validate custom cert (/!\ option "mode")
 
         return $errors;
     }

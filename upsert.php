@@ -77,11 +77,10 @@ if ($form->is_cancelled()) {
         $data->mailingmodecompletion = 0;
     }
     $mailing->targetmodulestatus = $data->mailingmodecompletion;
-//    if ($data->mailingmode == 'option' && !empty($data->mailingmodeoption)) {
-//        $mailing->mailingmode = $data->mailingmodeoption;
-//        $mailing->mailingdelay = (int) $data->mailingdelay;
-//    } else
-    if ($data->mailingmodemodule == 'option' && !empty($data->mailingmodemoduleoption)) {
+    if ($data->mailingmode == 'option' && !empty($data->mailingmodeoption)) {
+        $mailing->mailingmode = $data->mailingmodeoption;
+        $mailing->mailingdelay = (int) $data->mailingdelay;
+    } elseif ($data->mailingmodemodule == 'option' && !empty($data->mailingmodemoduleoption)) {
         $mailing->mailingmode = $data->mailingmodemoduleoption;
         $mailing->mailingdelay = (int) $data->mailingdelaymodule;
     } else {

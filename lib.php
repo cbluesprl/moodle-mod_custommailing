@@ -322,18 +322,31 @@ function custommailing_getsql($mailing)
                 JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE && !empty($mailing->mailingdelay)) {
+        // retroactive mode
+        if (!$mailing->retroactive) {
+            $sql_retro = " AND ue.timestart >= " . $mailing->timecreated;
+        } else {
+            $sql_retro = '';
+        }
         $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {user_enrolments} ue ON ue.userid = u.id
                 JOIN {enrol} e ON e.id = ue.enrolid 
-                WHERE e.courseid = $mailing->courseid AND ue.timestart < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range)
+                WHERE e.courseid = $mailing->courseid AND ue.timestart < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_retro
                 GROUP BY u.id
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
+        // retroactive mode
+        if (!$mailing->retroactive) {
+            $sql_retro = " AND lsl.timestart >= " . $mailing->timecreated;
+        } else {
+            $sql_retro = '';
+        }
         $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {course} c ON c.id = $mailing->courseid
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
+                WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_retro
                 GROUP BY u.id
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
