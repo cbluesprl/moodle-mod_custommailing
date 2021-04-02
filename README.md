@@ -5,11 +5,17 @@ This activity allows custom mailing creation with following parameters :
 Send an email to each user enrolled in the course :
 
 * at course enrol
-* x days(s) after first launch of a scorm
-* x days(s) after last launch of a scorm
+* x days(s) after first access of the course
+* x days(s) after last access of the course
+* x days(s) after first launch of a scorm (optional scorm completion status)
+* x days(s) after last launch of a scorm (optional scorm completion status)
+
+* Retroactive mode available for each mailing
   
 This plugin can also generate and send a PDF certificate linked to the mailing when conditions are met.
 This feature requires Mod customcert plugin https://moodle.org/plugins/mod_customcert
+
+You can create more than one mailing by activity but each user can only receive one email per mailing.
 
 ## Installation
 
@@ -40,3 +46,8 @@ Visit the [Moodle plugins website](https://moodle.org/plugins/mod_custommailing 
 ## License
 
 Licensed under the [GNU GPL License](http://www.gnu.org/copyleft/gpl.html).
+
+## Data Privacy
+
+Despite the fact that the plugin can send emails, user email addresses are not stored by the plugin.
+When a user is deleted by Moodle then user data in this plugin will be deleted.
