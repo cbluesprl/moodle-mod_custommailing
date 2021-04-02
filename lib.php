@@ -287,7 +287,7 @@ function custommailing_getsql($mailing)
     // target module completion
     if (!empty($mailing->targetmoduleid)) {
         if (!empty($mailing->targetmodulestatus)) {
-            $sql_where = " AND cmc.completionstate IN (0,3)";
+            $sql_where = " AND (cmc.completionstate IN (0,3) OR cmc.completionstate IS NULL)";
         } else {
             $sql_where = " AND cmc.completionstate IN (1,2)";
         }
