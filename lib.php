@@ -285,12 +285,14 @@ function custommailing_getsql($mailing)
     }
 
     // target module completion
-    if (!empty($mailing->targetmodulestatus)) {
-        $sql_completion = " AND cmc.completionstate IN (0,3)";
-        $sql_where = '';
+    if (!empty($mailing->targetmoduleid)) {
+        if (!empty($mailing->targetmodulestatus)) {
+            $sql_where = " AND cmc.completionstate IN (0,3)";
+        } else {
+            $sql_where = " AND cmc.completionstate IN (1,2)";
+        }
     } else {
-        $sql_completion = " AND cmc.completionstate IN (1,2)";
-        $sql_where = " AND cmc.id IS NOT NULL";
+        $sql_where = '';
     }
 
     // mailing modes
@@ -363,7 +365,7 @@ function custommailing_getsql($mailing)
                 FROM {user} u
                 $join_retro
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
-                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid $sql_completion
+                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_where
                 GROUP BY u.id
                 ORDER BY lsl.id DESC
@@ -382,7 +384,7 @@ function custommailing_getsql($mailing)
                 FROM {user} u
                 $join_retro
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
-                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid $sql_completion
+                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_where
                 GROUP BY u.id
                 ORDER BY lsl.id ASC
