@@ -87,6 +87,7 @@ $string['timemodified'] = 'Time modified';
 $string['updatemailing'] = "Update mailing";
 
 $string['privacy:metadata'] = 'The Custom Mailing plugin store personal log for each email sended by each mailing.';
+$string['privacy:metadata:custommailing_logs'] = 'Custom Mailing Logs';
 $string['privacy:metadata:custommailingmailingid'] = 'Mailing id';
 $string['privacy:metadata:emailtouserid'] = 'User id';
 $string['privacy:metadata:emailstatus'] = 'Email status';

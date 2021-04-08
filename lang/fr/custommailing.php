@@ -87,6 +87,7 @@ $string['timemodified'] = 'Date et heure de modification';
 $string['updatemailing'] = "Mettre à jour le mailing";
 
 $string['privacy:metadata'] = 'Le plugin conserve la date, le statut et l\'identifiant du destinataire des emails envoyés par chaque mailing';
+$string['privacy:metadata:custommailing_logs'] = 'Custom Mailing Logs';
 $string['privacy:metadata:custommailingmailingid'] = 'Identifiant du Mailing';
 $string['privacy:metadata:emailtouserid'] = 'Identifiant de l\'utilisateur';
 $string['privacy:metadata:emailstatus'] = 'Statut d\'envoi de l\'email';
