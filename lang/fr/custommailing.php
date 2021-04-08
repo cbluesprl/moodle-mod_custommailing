@@ -85,3 +85,9 @@ $string['targetmoduleid'] = 'Activité déclencheuse';
 $string['timecreated'] = 'Date et heure de création';
 $string['timemodified'] = 'Date et heure de modification';
 $string['updatemailing'] = "Mettre à jour le mailing";
+
+$string['privacy:metadata:custommailingmailingid'] = 'Identifiant du Mailing';
+$string['privacy:metadata:emailtouserid'] = 'Identifiant de l\'utilisateur';
+$string['privacy:metadata:emailstatus'] = 'Statut d\'envoi de l\'email';
+$string['privacy:metadata:timecreated'] = 'Date et heure de création';
+$string['privacy:metadata:timemodified'] = 'Date et heure de modification';

@@ -63,7 +63,7 @@ class provider implements
                 'timecreated' => 'privacy:metadata:timecreated',
                 'timemodified' => 'privacy:metadata:timemodified'
             ],
-            'privacy:metadata:reengagement_inprogress'
+            'privacy:metadata:custommailing_logs'
         );
 
         return $collection;
