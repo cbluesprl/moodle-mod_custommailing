@@ -25,6 +25,16 @@
 
 namespace mod_custommailing\privacy;
 
+use core_privacy\local\metadata\collection;
+use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\contextlist;
+use core_privacy\local\request\userlist;
+use context;
+use context_module;
+use mod_custommailing\Mailing;
+use mod_custommailing\MailingLog;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -33,15 +43,156 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @package mod_custommailing\privacy
  */
-class provider implements \core_privacy\local\metadata\null_provider {
+class provider implements
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider
+{
 
     /**
-     * Get the language string identifier with the component's language
-     * file to explain why this plugin stores no data.
-     *
-     * @return  string
+     * @param collection $collection
+     * @return collection
      */
-    public static function get_reason(): string {
-        return 'privacy:metadata';
+    public static function get_metadata(collection $collection) : collection {
+        $collection->add_database_table(
+            'custommailing_logs',
+            [
+                'custommailingmailingid' => 'privacy:metadata:custommailingmailingid',
+                'emailtouserid' => 'privacy:metadata:emailtouserid',
+                'emailstatus' => 'privacy:metadata:emailstatus',
+                'timecreated' => 'privacy:metadata:timecreated',
+                'timemodified' => 'privacy:metadata:timemodified'
+            ],
+            'privacy:metadata:reengagement_inprogress'
+        );
+
+        return $collection;
+    }
+
+    /**
+     * Get the list of contexts that contain user information for the specified user.
+     *
+     * @param int $userid The user to search.
+     * @return contextlist $contextlist The contextlist containing the list of contexts used in this plugin.
+     */
+    public static function get_contexts_for_userid(int $userid) : contextlist {
+        return (new contextlist)->add_from_sql(
+            "SELECT ctx.id
+                 FROM {context} ctx
+                 JOIN {course_modules} cm ON cm.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                 JOIN {modules} m ON m.id = cm.module AND m.name = :modname
+                 JOIN {custommailing} c ON c.id = cm.instance
+                 JOIN {custommailing_mailing} cmm ON cmm.id = c.custommailingid
+                 JOIN {custommailing_logs} cml ON cml.custommailingmailingid = cmm.id
+                 WHERE cml.emailtouserid = :userid",
+            [
+                'modname' => 'custommailing',
+                'contextlevel' => CONTEXT_MODULE,
+                'userid' => $userid
+            ]
+        );
+    }
+
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+        if (!is_a($context, \context_module::class)) {
+            return;
+        }
+        $sql = "SELECT cml.emailtouserid as userid
+                    FROM {custommailing_logs} cml
+                    JOIN {custommailing_mailing} cmm ON cmm.id = cml.custommailingmailingid
+                    JOIN {custommailing} c ON c.id = cmm.custommailingid
+                    JOIN {course_modules} cm ON cm.instance = c.id
+                    JOIN {modules} m ON m.id = cm.module AND m.name = 'custommailing'
+                 WHERE cm.id = :instanceid";
+
+        $params = [
+            'modulename' => 'custommailing',
+            'instanceid'    => $context->instanceid,
+        ];
+
+        $userlist->add_from_sql('userid', $sql, $params);
+    }
+
+    /**
+     * Delete all data for all users in the specified context.
+     *
+     * @param context $context
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public static function delete_data_for_all_users_in_context(context $context) {
+
+        if (!$context instanceof context_module) {
+            return;
+        }
+
+        if (!$cm = get_coursemodule_from_id('custommailing', $context->instanceid)) {
+            return;
+        }
+
+        Mailing::deleteAll($cm->instance);
+    }
+
+    /**
+     * Delete all user data for the specified user, in the specified contexts.
+     *
+     * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
+
+        if (empty($contextlist->count())) {
+            return;
+        }
+        $userid = (int) $contextlist->get_user()->id;
+
+        foreach ($contextlist as $context) {
+            if (!$context instanceof context_module) {
+                continue;
+            }
+            if (!$cm = get_coursemodule_from_id('custommailing', $context->instanceid)) {
+                continue;
+            }
+            MailingLog::deleteByUser($userid);
+        }
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param   approved_userlist       $userlist The approved context and user information to delete information for.
+     * @throws \dml_exception
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+
+        $context = $userlist->get_context();
+        if (!is_a($context, \context_module::class)) {
+            return;
+        }
+        if (!$cm = get_coursemodule_from_id('custommailing', $context->instanceid)) {
+            return;
+        }
+        $userids = $userlist->get_userids();
+        foreach ($userids as $userid) {
+            MailingLog::deleteByUser($userid);
+        }
+
+    }
+
+    /**
+     * Export all user data for the specified user, in the specified contexts.
+     *
+     * @param approved_contextlist $contextlist The approved contexts to export information for.
+     */
+    public static function export_user_data(approved_contextlist $contextlist) {
+
+
     }
 }

@@ -110,6 +110,16 @@ class MailingLog
     }
 
     /**
+     * @param int $userid
+     * @throws dml_exception
+     */
+    public static function deleteByUser(int $userid) {
+        global $DB;
+
+        $DB->delete_records('custommailing_logs', ['emailtouserid' => $userid]);
+    }
+
+    /**
      * @param stdClass $record
      * @return stdClass
      */
