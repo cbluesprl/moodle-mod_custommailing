@@ -201,7 +201,8 @@ class provider implements
         list($contextsql, $contextparams) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
         $contextparams['userid'] = $user->id;
 
-        $sql = "SELECT cml.*,ctx.id as contextid FROM {custommailing_logs} cml
+        $sql = "SELECT cml.*,ctx.id as contextid 
+                FROM {custommailing_logs} cml
                     JOIN {custommailing_mailing} cmm ON cmm.id = cml.custommailingmailingid
                     JOIN {custommailing} c ON c.id = cmm.custommailingid
                     JOIN {course_modules} cm ON cm.instance = c.id
