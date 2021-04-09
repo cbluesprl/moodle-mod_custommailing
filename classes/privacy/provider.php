@@ -30,8 +30,10 @@ use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\userlist;
+use core_privacy\local\request\transform;
 use context;
 use context_module;
+use core_privacy\local\request\writer;
 use mod_custommailing\Mailing;
 use mod_custommailing\MailingLog;
 
@@ -192,7 +194,36 @@ class provider implements
      * @param approved_contextlist $contextlist The approved contexts to export information for.
      */
     public static function export_user_data(approved_contextlist $contextlist) {
+       global $DB;
 
+        $user = $contextlist->get_user();
 
+        list($contextsql, $contextparams) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
+        $contextparams['userid'] = $user->id;
+
+        $sql = "SELECT cml.*,ctx.id as contextid FROM {custommailing_logs} cml
+                    JOIN {custommailing_mailing} cmm ON cmm.id = cml.custommailingmailingid
+                    JOIN {custommailing} c ON c.id = cmm.custommailingid
+                    JOIN {course_modules} cm ON cm.instance = c.id
+                    JOIN {modules} m ON m.id = cm.module AND m.name = 'custommailing'
+                    JOIN {context} ctx ON ctx.instanceid = cm.id
+                WHERE cml.emailtouserid = :userid AND ct.ix {$contextsql}";
+
+        $logs = $DB->get_records_sql($sql, $contextparams);
+
+        foreach ($logs as $log) {
+            $logdata = (object) [
+                'custommailingmailingid' => $log->custommailingmailingid,
+                'emailtouserid' => $log->emailtouserid,
+                'emailstatus' => $log->emailstatus,
+                'timecreated' => transform::datetime($log->timecreated),
+                'timemodified' => transform::datetime($log->timemodified)
+            ];
+            $context = context::instance_by_id($log->contextid);
+            writer::with_context($context)->export_data(
+                [get_string('modulename', 'custommailing') . ' ' . $log->custommailingmailingid],
+                $logdata
+            );
+        }
     }
 }
