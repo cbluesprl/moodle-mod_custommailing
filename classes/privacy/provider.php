@@ -84,7 +84,7 @@ class provider implements
                  JOIN {course_modules} cm ON cm.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                  JOIN {modules} m ON m.id = cm.module AND m.name = :modname
                  JOIN {custommailing} c ON c.id = cm.instance
-                 JOIN {custommailing_mailing} cmm ON cmm.id = c.custommailingid
+                 JOIN {custommailing_mailing} cmm ON cmm.custommailingid = c.id
                  JOIN {custommailing_logs} cml ON cml.custommailingmailingid = cmm.id
                  WHERE cml.emailtouserid = :userid",
             [
@@ -208,7 +208,7 @@ class provider implements
                     JOIN {course_modules} cm ON cm.instance = c.id
                     JOIN {modules} m ON m.id = cm.module AND m.name = 'custommailing'
                     JOIN {context} ctx ON ctx.instanceid = cm.id
-                WHERE cml.emailtouserid = :userid AND ct.ix {$contextsql}";
+                WHERE cml.emailtouserid = :userid AND ctx.id {$contextsql}";
 
         $logs = $DB->get_records_sql($sql, $contextparams);
 
