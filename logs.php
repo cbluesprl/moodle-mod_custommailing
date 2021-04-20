@@ -65,30 +65,27 @@ $table->head = [
 ];
 $table->data = [];
 
+$string_statuses = [
+    MAILING_LOG_FAILED => get_string('log_mailing_failed', 'custommailing'),
+    MAILING_LOG_SENT => get_string('log_mailing_sent', 'custommailing'),
+    MAILING_LOG_PROCESSING => get_string('log_mailing_processing', 'custommailing'),
+    MAILING_LOG_IDLE => get_string('log_mailing_idle', 'custommailing'),
+];
+$string_unknown_status = get_string('log_mailing_unknown', 'custommailing');
+
 foreach ($logs as $log) {
     $srow = new html_table_row();
-    foreach ($log as $key => $value) {
-        if ($key == 'timecreated') {
-            if ($log->timecreated) {
-                $value = userdate($log->timecreated);
-            }
-        }
-        if ($key == 'emailstatus') {
-            if ($value == MAILING_LOG_FAILED) {
-                $value = get_string('log_mailing_failed', 'custommailing');
-            } elseif ($value == MAILING_LOG_SENT) {
-                $value = get_string('log_mailing_sent', 'custommailing');
-            } elseif ($value == MAILING_LOG_PROCESSING) {
-                $value = get_string('log_mailing_processing', 'custommailing');
-            } elseif ($value == MAILING_LOG_IDLE) {
-                $value = get_string('log_mailing_idle', 'custommailing');
-            } else {
-                $value = get_string('log_mailing_unknown', 'custommailing');
-            }
-        }
-        if ($key != 'id') {
-            $srow->cells[] = $value;
-        }
+
+    $srow->cells = [
+        $log->mailingname,
+        $log->user,
+        userdate($log->timecreated),
+    ];
+    if (isset($string_statuses[$log->emailstatus])) {
+        $srow->cells[] = $string_statuses[$log->emailstatus];
+    }
+    else {
+        $srow->cells[] = $string_unknown_status;
     }
     $table->data[] = $srow;
 }

@@ -80,8 +80,9 @@ class MailingLog
     public static function getAllForTable(int $custommailingid) {
         global $DB;
 
+        $user_name_fields = get_all_user_name_fields(true, 'u',null,'user_');
         $records = [];
-        $sql = "SELECT cl.id, cm.mailingname, CONCAT(u.firstname, ' ', u.lastname, ' - ', u.email), cl.timecreated, cl.emailstatus 
+        $sql = "SELECT cl.id, cm.mailingname, u.id AS user_id, $user_name_fields, u.email AS user_email, cl.timecreated, cl.emailstatus 
                 FROM {custommailing_logs} cl
                 JOIN {custommailing_mailing} cm ON cm.id = cl.custommailingmailingid
                 JOIN {user} u ON u.id = cl.emailtouserid
@@ -89,7 +90,20 @@ class MailingLog
                 ORDER BY cl.id DESC";
         $rs = $DB->get_recordset_sql($sql, ['custommailingid' => $custommailingid]);
         foreach ($rs as $record) {
-            $records[$record->id] = $record;
+            $record = (array) $record;
+            $user = new stdClass();
+            $log = new stdClass();
+            foreach ($record as $property => $value) {
+                if (preg_match('/^user\_/', $property)) {
+                    $property = preg_replace('/^user\_/','',$property);
+                    $user->$property = $value;
+                }
+                else {
+                    $log->$property = $value;
+                }
+            }
+            $log->user = fullname($user) . ' - '. $user->email;
+            $records[$log->id] = $log;
         }
         $rs->close();
 

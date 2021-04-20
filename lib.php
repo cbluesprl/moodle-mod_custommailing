@@ -330,11 +330,19 @@ function custommailing_getsql($mailing)
         } else {
             $sql_retro = '';
         }
+
+        $start = new \DateTime();
+        $interval_duration = "P" . $mailing->mailingdelay . "M";
+        if ($delay_range == 'MINUTE') {
+            $interval_duration = "PT" . $mailing->mailingdelay . "M";
+        }
+        $start->sub(new DateInterval($interval_duration));
+
         $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {user_enrolments} ue ON ue.userid = u.id
                 JOIN {enrol} e ON e.id = ue.enrolid 
-                WHERE e.courseid = $mailing->courseid AND ue.timestart < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_retro
+                WHERE e.courseid = $mailing->courseid AND ue.timestart < " . $start->getTimestamp() . " $sql_retro
                 GROUP BY u.id
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
@@ -344,11 +352,19 @@ function custommailing_getsql($mailing)
         } else {
             $sql_retro = '';
         }
+
+        $start = new \DateTime();
+        $interval_duration = "P" . $mailing->mailingdelay . "M";
+        if ($delay_range == 'MINUTE') {
+            $interval_duration = "PT" . $mailing->mailingdelay . "M";
+        }
+        $start->sub(new DateInterval($interval_duration));
+
         $sql = "SELECT u.*
                 FROM {user} u
                 JOIN {course} c ON c.id = $mailing->courseid
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
-                WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_retro
+                WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_retro
                 GROUP BY u.id
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
@@ -360,13 +376,21 @@ function custommailing_getsql($mailing)
         } else {
             $join_retro = '';
         }
+
+        $start = new \DateTime();
+        $interval_duration = "P" . $mailing->mailingdelay . "M";
+        if ($delay_range == 'MINUTE') {
+            $interval_duration = "PT" . $mailing->mailingdelay . "M";
+        }
+        $start->sub(new DateInterval($interval_duration));
+
         //ToDo : other modules than scorm
         $sql = "SELECT u.*
                 FROM {user} u
                 $join_retro
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
                 LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
-                WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_where
+                WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_where
                 GROUP BY u.id
                 ORDER BY lsl.id DESC
                 ";
@@ -379,13 +403,21 @@ function custommailing_getsql($mailing)
         } else {
             $join_retro = '';
         }
+
+        $start = new \DateTime();
+        $interval_duration = "P" . $mailing->mailingdelay . "M";
+        if ($delay_range == 'MINUTE') {
+            $interval_duration = "PT" . $mailing->mailingdelay . "M";
+        }
+        $start->sub(new DateInterval($interval_duration));
+
         //ToDo : other modules than scorm
         $sql = "SELECT u.*
                 FROM {user} u
                 $join_retro
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
                 LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
-                WHERE lsl.timecreated < UNIX_TIMESTAMP(NOW() - INTERVAL $mailing->mailingdelay $delay_range) $sql_where
+                WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_where
                 GROUP BY u.id
                 ORDER BY lsl.id ASC
                 ";
