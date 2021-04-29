@@ -373,7 +373,7 @@ function custommailing_getsql($mailing)
             $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
                             JOIN {enrol} e ON e.id = ue.enrolid
                             JOIN {course} c ON c.id = e.courseid ";
-            $sql_where .= " c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
+            $sql_where .= " AND c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
         } else {
             $join_retro = '';
         }
