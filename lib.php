@@ -306,7 +306,7 @@ function custommailing_getsql($mailing)
     } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($mailing->courseid)) {
         // retroactive mode
         if (!$mailing->retroactive) {
-            $sql_retro = " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ')';
+            $sql_retro = " AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
         } else {
             $sql_retro = '';
         }
@@ -326,7 +326,7 @@ function custommailing_getsql($mailing)
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE && !empty($mailing->mailingdelay)) {
         // retroactive mode
         if (!$mailing->retroactive) {
-            $sql_retro = " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ')';
+            $sql_retro = " AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
         } else {
             $sql_retro = '';
         }
@@ -373,7 +373,7 @@ function custommailing_getsql($mailing)
             $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
                             JOIN {enrol} e ON e.id = ue.enrolid
                             JOIN {course} c ON c.id = e.courseid ";
-            $sql_where .= " c.id = ".$mailing->courseid." AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ')';
+            $sql_where .= " c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
         } else {
             $join_retro = '';
         }
@@ -401,7 +401,7 @@ function custommailing_getsql($mailing)
             $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
                             JOIN {enrol} e ON e.id = ue.enrolid 
                             JOIN {course} c ON c.id = e.courseid ";
-            $sql_where .= " c.id = ".$mailing->courseid." AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ')';
+            $sql_where .= " c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
         } else {
             $join_retro = '';
         }
@@ -430,7 +430,7 @@ function custommailing_getsql($mailing)
             $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
                             JOIN {enrol} e ON e.id = ue.enrolid
                             JOIN {course} c ON c.id = e.courseid ";
-            $sql_where = " WHERE c.id = ".$mailing->courseid." AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ')';
+            $sql_where = " WHERE c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
         } else {
             $join_retro = '';
             $sql_where = '';
