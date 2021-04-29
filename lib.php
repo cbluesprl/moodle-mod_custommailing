@@ -306,7 +306,7 @@ function custommailing_getsql($mailing)
     } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($mailing->courseid)) {
         // retroactive mode
         if (!$mailing->retroactive) {
-            $sql_retro = " AND ue.timestart >= " . $mailing->timecreated;
+            $sql_retro = " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ')';
         } else {
             $sql_retro = '';
         }
@@ -326,7 +326,7 @@ function custommailing_getsql($mailing)
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE && !empty($mailing->mailingdelay)) {
         // retroactive mode
         if (!$mailing->retroactive) {
-            $sql_retro = " AND ue.timestart >= " . $mailing->timecreated;
+            $sql_retro = " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ')';
         } else {
             $sql_retro = '';
         }
