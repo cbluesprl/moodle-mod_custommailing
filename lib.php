@@ -332,7 +332,7 @@ function custommailing_getsql($mailing)
         }
 
         $start = new \DateTime();
-        $interval_duration = "P" . $mailing->mailingdelay . "M";
+        $interval_duration = "P" . $mailing->mailingdelay . "D";
         if ($delay_range == 'MINUTE') {
             $interval_duration = "PT" . $mailing->mailingdelay . "M";
         }
@@ -354,7 +354,7 @@ function custommailing_getsql($mailing)
         }
 
         $start = new \DateTime();
-        $interval_duration = "P" . $mailing->mailingdelay . "M";
+        $interval_duration = "P" . $mailing->mailingdelay . "D";
         if ($delay_range == 'MINUTE') {
             $interval_duration = "PT" . $mailing->mailingdelay . "M";
         }
@@ -379,7 +379,7 @@ function custommailing_getsql($mailing)
         }
 
         $start = new \DateTime();
-        $interval_duration = "P" . $mailing->mailingdelay . "M";
+        $interval_duration = "P" . $mailing->mailingdelay . "D";
         if ($delay_range == 'MINUTE') {
             $interval_duration = "PT" . $mailing->mailingdelay . "M";
         }
@@ -407,7 +407,7 @@ function custommailing_getsql($mailing)
         }
 
         $start = new \DateTime();
-        $interval_duration = "P" . $mailing->mailingdelay . "M";
+        $interval_duration = "P" . $mailing->mailingdelay . "D";
         if ($delay_range == 'MINUTE') {
             $interval_duration = "PT" . $mailing->mailingdelay . "M";
         }
