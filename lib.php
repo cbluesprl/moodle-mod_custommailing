@@ -301,7 +301,6 @@ function custommailing_getsql($mailing)
                 FROM {user} u
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
                 GROUP BY u.id
-                ORDER BY lsl.id
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($mailing->courseid)) {
         // retroactive mode
@@ -393,8 +392,8 @@ function custommailing_getsql($mailing)
                 LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_where
                 GROUP BY u.id
-                ORDER BY lsl.id DESC
                 ";
+
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
         // retroactive mode
         if (!$mailing->retroactive) {
@@ -421,7 +420,6 @@ function custommailing_getsql($mailing)
                 LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_where
                 GROUP BY u.id
-                ORDER BY lsl.id ASC
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
         custommailing_certifications($mailing->customcertmoduleid, $mailing->courseid);
@@ -465,7 +463,9 @@ function custommailing_crontask() {
             JOIN {custommailing_mailing} rm ON rm.id = rl.custommailingmailingid
             WHERE rl.emailstatus < " . MAILING_LOG_SENT;
     $logs = $DB->get_recordset_sql($sql);
+
     foreach ($logs as $log) {
+
         if (!empty($log->customcertmoduleid)) {
             $attachment = custommailing_getcertificate($log->userid, $log->customcertmoduleid);
         } else {
