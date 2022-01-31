@@ -17,6 +17,9 @@ This feature requires Mod customcert plugin https://moodle.org/plugins/mod_custo
 
 You can create more than one mailing by activity but each user can only receive one email per mailing.
 
+## Diagram
+![Diagram of custommailing](./pix/custommailing_diagram.png)
+
 ## Installation
 
 There are two installation methods available. 
