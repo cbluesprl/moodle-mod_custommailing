@@ -54,3 +54,25 @@ Licensed under the [GNU GPL License](http://www.gnu.org/copyleft/gpl.html).
 
 Despite the fact that the plugin can send emails, user email addresses are not stored by the plugin.
 When a user is deleted by Moodle then user data in this plugin will be deleted.
+
+## Test
+
+* Log in as admin
+* Create a course
+* Enable course completion
+* Add an activity of type 'scorm' with completion on 'Student must view this activity to complete it'
+* Add an activity of type 'custommailing'
+* Enrol 1 user with the teacher role to the course
+* Enrol 2 users with the student role to the course
+* In administration > Plugins > Activity Modules > Custom mailing : Enable debug mode (so you won't have to wait an hour)
+* Log in as teacher
+* In the Custommailing activity, create a mailing. Parameter it.
+  * Send the mail 1 day after first launch
+    * This will be displayed as 1 day but will in fact be 1 minute if the debug mode is activated for the plugin (see previous steps)
+  * and target module is not completed by the user (yes)
+* Log in as first student and complete the scorm
+* Launch the cron task manually (\mod_custommailing\task\cron_task)
+* Check the table mal_custommailing_logs : only the second student has been targeted
+* Check disabling a mailing in interface by consulting the custommailing activity as teacher or admin
+* Check deletion a mailing in interface by consulting the custommailing activity as teacher or admin
+

@@ -297,10 +297,9 @@ function custommailing_getsql($mailing)
 
     // mailing modes
     if ($mailing->mailingmode == MAILING_MODE_FIRSTLAUNCH && !empty($mailing->targetmoduleid)) {
-        $sql = "SELECT u.*
+        $sql = "SELECT DISTINCT u.*
                 FROM {user} u
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
-                GROUP BY u.id
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($mailing->courseid)) {
         // retroactive mode
@@ -310,15 +309,14 @@ function custommailing_getsql($mailing)
             $sql_retro = '';
         }
         //ToDo : check if user enrolled with different enrol methods to same course
-        $sql = "SELECT u.*
+        $sql = "SELECT DISTINCT u.*
                 FROM {user} u
                 JOIN {user_enrolments} ue ON ue.userid = u.id
                 JOIN {enrol} e ON e.id = ue.enrolid 
                 WHERE e.courseid = $mailing->courseid $sql_retro
-                GROUP BY u.id
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE && !empty($mailing->targetmoduleid)) {
-        $sql = "SELECT u.*
+        $sql = "SELECT DISTINCT u.*
                 FROM {user} u
                 JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 ";
@@ -337,12 +335,11 @@ function custommailing_getsql($mailing)
         }
         $start->sub(new DateInterval($interval_duration));
 
-        $sql = "SELECT u.*
+        $sql = "SELECT DISTINCT u.*
                 FROM {user} u
                 JOIN {user_enrolments} ue ON ue.userid = u.id
                 JOIN {enrol} e ON e.id = ue.enrolid 
                 WHERE e.courseid = $mailing->courseid AND ue.timestart < " . $start->getTimestamp() . " $sql_retro
-                GROUP BY u.id
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
         // retroactive mode
@@ -359,12 +356,11 @@ function custommailing_getsql($mailing)
         }
         $start->sub(new DateInterval($interval_duration));
 
-        $sql = "SELECT u.*
+        $sql = "SELECT DISTINCT u.*
                 FROM {user} u
                 JOIN {course} c ON c.id = $mailing->courseid
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
                 WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_retro
-                GROUP BY u.id
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
         // retroactive mode
@@ -385,13 +381,12 @@ function custommailing_getsql($mailing)
         $start->sub(new DateInterval($interval_duration));
 
         //ToDo : other modules than scorm
-        $sql = "SELECT u.*
+        $sql = "SELECT DISTINCT u.*
                 FROM {user} u
                 $join_retro
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
                 LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_where
-                GROUP BY u.id
                 ";
 
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
@@ -413,13 +408,12 @@ function custommailing_getsql($mailing)
         $start->sub(new DateInterval($interval_duration));
 
         //ToDo : other modules than scorm
-        $sql = "SELECT u.*
+        $sql = "SELECT DISTINCT u.*
                 FROM {user} u
                 $join_retro
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
                 LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_where
-                GROUP BY u.id
                 ";
     } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
         custommailing_certifications($mailing->customcertmoduleid, $mailing->courseid);
@@ -433,7 +427,7 @@ function custommailing_getsql($mailing)
             $join_retro = '';
             $sql_where = '';
         }
-        $sql = "SELECT u.*
+        $sql = "SELECT DISTINCT u.*
                 FROM {user} u
                 $join_retro
                 JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = $mailing->customcertmoduleid
@@ -550,8 +544,7 @@ function custommailing_certifications($customcertid, $courseid)
                 FROM {user} u
                 JOIN {course} c ON c.id = :courseid
                 JOIN {enrol} e ON e.courseid = c.id
-                JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id
-                GROUP BY u.id";
+                JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id";
 
     $users = $DB->get_records_sql($sql, ['courseid' => $courseid]);
     foreach ($users as $user) {
