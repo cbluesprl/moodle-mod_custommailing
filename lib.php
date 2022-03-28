@@ -252,7 +252,7 @@ function custommailing_logs_generate()
             $users = $DB->get_records_sql($sql);
             if (is_array($users)) {
                 foreach ($users as $user) {
-                    if (validate_email($user->email) && !$DB->get_record('custommailing_logs', ['custommailingmailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
+                    if (!empty($user->email) && !$DB->get_record('custommailing_logs', ['custommailingmailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
                         $record = new stdClass();
                         $record->custommailingmailingid = (int) $mailing->id;
                         $record->emailtouserid = (int) $user->id;
@@ -268,6 +268,7 @@ function custommailing_logs_generate()
 
 /**
  * @param object $mailing
+ *
  * @return false|string
  * @throws coding_exception
  * @throws dml_exception
@@ -278,6 +279,7 @@ function custommailing_getsql($mailing)
     $sql = false;
 
     $config = get_config('custommailing');
+
     if (!empty($config->debugmode)) {
         $delay_range = 'MINUTE';
     } else {
@@ -368,7 +370,7 @@ function custommailing_getsql($mailing)
             $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
                             JOIN {enrol} e ON e.id = ue.enrolid
                             JOIN {course} c ON c.id = e.courseid ";
-            $sql_where .= " AND c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
+            $sql_where .= " AND c.id = " . $mailing->courseid . " AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
         } else {
             $join_retro = '';
         }
@@ -388,14 +390,13 @@ function custommailing_getsql($mailing)
                 LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
                 WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_where
                 ";
-
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
         // retroactive mode
         if (!$mailing->retroactive) {
             $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
                             JOIN {enrol} e ON e.id = ue.enrolid 
                             JOIN {course} c ON c.id = e.courseid ";
-            $sql_where .= " c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
+            $sql_where .= " c.id = " . $mailing->courseid . " AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
         } else {
             $join_retro = '';
         }
@@ -422,7 +423,7 @@ function custommailing_getsql($mailing)
             $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
                             JOIN {enrol} e ON e.id = ue.enrolid
                             JOIN {course} c ON c.id = e.courseid ";
-            $sql_where = " WHERE c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
+            $sql_where = " WHERE c.id = " . $mailing->courseid . " AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
         } else {
             $join_retro = '';
             $sql_where = '';
@@ -459,7 +460,6 @@ function custommailing_crontask() {
     $logs = $DB->get_recordset_sql($sql);
 
     foreach ($logs as $log) {
-
         if (!empty($log->customcertmoduleid)) {
             $attachment = custommailing_getcertificate($log->userid, $log->customcertmoduleid);
         } else {
@@ -479,7 +479,6 @@ function custommailing_crontask() {
         $ids = implode(",", array_unique($ids_to_update));
         $DB->execute("UPDATE {custommailing_logs} SET emailstatus = " . MAILING_LOG_SENT . " WHERE id IN ($ids)");
     }
-
 }
 
 /**
@@ -540,15 +539,25 @@ function custommailing_certifications($customcertid, $courseid)
 {
     global $DB;
 
-    $sql = "SELECT u.*
-                FROM {user} u
-                JOIN {course} c ON c.id = :courseid
-                JOIN {enrol} e ON e.courseid = c.id
-                JOIN {user_enrolments} ue ON ue.userid = u.id AND ue.enrolid = e.id";
-
-    $users = $DB->get_records_sql($sql, ['courseid' => $courseid]);
+    $cm = $DB->get_record_sql(
+        "SELECT cm.*, md.name AS modname 
+        FROM {course_modules} cm
+        JOIN {modules} md ON md.id = cm.module
+        WHERE cm.instance = :cminstance AND md.name = :modulename AND cm.course = :courseid",
+        ['cminstance' => $customcertid, 'modulename' => 'customcert', 'courseid' => $courseid]
+    );
+    $users = $DB->get_records_sql(
+        "SELECT DISTINCT u.*
+        FROM {course} c
+        JOIN {enrol} e ON e.courseid = c.id
+        JOIN {user_enrolments} ue ON ue.enrolid = e.id
+        JOIN {user} u ON u.id = ue.userid
+        LEFT JOIN {customcert_issues} ci ON ci.userid = u.id AND ci.customcertid = :customcertid
+        WHERE c.id = :courseid AND ci.id IS NULL",
+        ['courseid' => $courseid, 'customcertid' => $customcertid]
+    );
     foreach ($users as $user) {
-        custommailing_certification($user->id, $customcertid, $courseid);
+        custommailing_certification($user->id, $customcertid, $courseid, $cm);
     }
 }
 
@@ -560,30 +569,21 @@ function custommailing_certifications($customcertid, $courseid)
  * @throws dml_exception
  * @throws moodle_exception
  */
-function custommailing_certification($userid, $customcertid, $courseid)
+function custommailing_certification($userid, $customcertid, $courseid, $cm)
 {
     global $DB;
 
-    $sql = "SELECT cm.*, m.name, md.name AS modname 
-              FROM {course_modules} cm
-                   JOIN {modules} md ON md.id = cm.module
-                   JOIN {customcert} m ON m.id = cm.instance
-             WHERE cm.instance = :cminstance AND md.name = :modulename AND cm.course = :courseid";
-
-    $cm = $DB->get_record_sql($sql, ['cminstance' => $customcertid, 'modulename' => 'customcert', 'courseid' => $courseid]);
-//    $cm = get_coursemodule_from_id('customcert', $cmid, $courseid, false, MUST_EXIST);
-    $modinfo = get_fast_modinfo($courseid);
+    $modinfo = get_fast_modinfo($courseid, $userid);
     $cminfo = $modinfo->get_cm($cm->id);
     $ainfomod = new \core_availability\info_module($cminfo);
 
     if ($ainfomod->is_available($availabilityinfo, false, $userid)) {
-        $customcertissue = new stdClass();
-        $customcertissue->customcertid = $customcertid;
-        $customcertissue->userid = $userid;
-        $customcertissue->code = \mod_customcert\certificate::generate_code();
-        $customcertissue->timecreated = time();
-
         if (!$DB->record_exists('customcert_issues', ['userid' => $userid, 'customcertid' => $customcertid])) {
+            $customcertissue = new stdClass();
+            $customcertissue->customcertid = $customcertid;
+            $customcertissue->userid = $userid;
+            $customcertissue->code = \mod_customcert\certificate::generate_code();
+            $customcertissue->timecreated = time();
             $DB->insert_record('customcert_issues', $customcertissue);
         }
     }
