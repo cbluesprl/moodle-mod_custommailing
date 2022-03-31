@@ -25,6 +25,7 @@
 
 namespace mod_custommailing;
 
+use core_h5p\core;
 use dml_exception;
 use stdClass;
 
@@ -80,7 +81,11 @@ class MailingLog
     public static function getAllForTable(int $custommailingid) {
         global $DB;
 
-        $user_name_fields = get_all_user_name_fields(true, 'u',null,'user_');
+        $user_name_fields_raw = \core_user\fields::get_name_fields();
+        foreach ($user_name_fields_raw as $field) {
+            $field = 'u.' . $field . ' as user_' . $field;
+        }
+        $user_name_fields = implode(', ', $user_name_fields_raw);
         $records = [];
         $sql = "SELECT cl.id, cm.mailingname, u.id AS user_id, $user_name_fields, u.email AS user_email, cl.timecreated, cl.emailstatus 
                 FROM {custommailing_logs} cl

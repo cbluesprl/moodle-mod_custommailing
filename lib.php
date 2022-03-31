@@ -248,8 +248,9 @@ function custommailing_logs_generate()
     $mailings = Mailing::getAllToSend();
     foreach ($mailings as $mailing) {
         $sql = custommailing_getsql($mailing);
-        if ($sql) {
-            $users = $DB->get_records_sql($sql);
+        echo'<pre>';var_dump($mailing->id, $sql);
+        if (!empty($sql['sql']) && !empty($sql['params'])) {
+            $users = $DB->get_records_sql($sql['sql'], $sql['params']);
             if (is_array($users)) {
                 foreach ($users as $user) {
                     if (validate_email($user->email) && !$DB->get_record('custommailing_logs', ['custommailingmailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
@@ -276,6 +277,7 @@ function custommailing_logs_generate()
 function custommailing_getsql($mailing)
 {
     $sql = false;
+    $params = [];
 
     $config = get_config('custommailing');
     if (!empty($config->debugmode)) {
@@ -299,31 +301,39 @@ function custommailing_getsql($mailing)
     if ($mailing->mailingmode == MAILING_MODE_FIRSTLAUNCH && !empty($mailing->targetmoduleid)) {
         $sql = "SELECT DISTINCT u.*
                 FROM {user} u
-                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'viewed'
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = :targetmoduleid AND lsl.action = 'viewed'
                 ";
+        $params['targetmoduleid'] = $mailing->targetmoduleid;
     } elseif ($mailing->mailingmode == MAILING_MODE_REGISTRATION && !empty($mailing->courseid)) {
         // retroactive mode
         if (!$mailing->retroactive) {
-            $sql_retro = " AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
+            $sql_retro = " AND ue.timecreated >= :timecreated AND (ue.timestart = 0 OR ue.timestart >= :timestart) AND (ue.timeend = 0 OR ue.timeend >= :timeend)";
+            $params['timecreated'] = $mailing->timecreated;
+            $params['timestart'] = $mailing->timecreated;
+            $params['timeend'] = $mailing->timecreated;
         } else {
             $sql_retro = '';
         }
-        //ToDo : check if user enrolled with different enrol methods to same course
         $sql = "SELECT DISTINCT u.*
                 FROM {user} u
                 JOIN {user_enrolments} ue ON ue.userid = u.id
                 JOIN {enrol} e ON e.id = ue.enrolid 
-                WHERE e.courseid = $mailing->courseid $sql_retro
+                WHERE e.courseid = :courseid $sql_retro
                 ";
+        $params['courseid'] = $mailing->courseid;
     } elseif ($mailing->mailingmode == MAILING_MODE_COMPLETE && !empty($mailing->targetmoduleid)) {
         $sql = "SELECT DISTINCT u.*
                 FROM {user} u
-                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
+                JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = :targetmoduleid
                 ";
+        $params['targetmoduleid'] = $mailing->targetmoduleid;
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMINSCRIPTIONDATE && !empty($mailing->mailingdelay)) {
         // retroactive mode
         if (!$mailing->retroactive) {
-            $sql_retro = " AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
+            $sql_retro = " AND ue.timecreated >= :timecreated AND (ue.timestart = 0 OR ue.timestart >= :timestart) AND (ue.timeend = 0 OR ue.timeend >= :timeend)";
+            $params['timecreated'] = $mailing->timecreated;
+            $params['timestart'] = $mailing->timecreated;
+            $params['timeend'] = $mailing->timecreated;
         } else {
             $sql_retro = '';
         }
@@ -339,12 +349,14 @@ function custommailing_getsql($mailing)
                 FROM {user} u
                 JOIN {user_enrolments} ue ON ue.userid = u.id
                 JOIN {enrol} e ON e.id = ue.enrolid 
-                WHERE e.courseid = $mailing->courseid AND ue.timestart < " . $start->getTimestamp() . " $sql_retro
+                WHERE e.courseid = :courseid AND ue.timestart < " . $start->getTimestamp() . " $sql_retro
                 ";
+        $params['courseid'] = $mailing->courseid;
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
         // retroactive mode
         if (!$mailing->retroactive) {
-            $sql_retro = " AND lsl.timecreated >= " . $mailing->timecreated;
+            $sql_retro = " AND lsl.timecreated >= :timecreated";
+            $params['timecreated'] = $mailing->timecreated;
         } else {
             $sql_retro = '';
         }
@@ -358,19 +370,24 @@ function custommailing_getsql($mailing)
 
         $sql = "SELECT DISTINCT u.*
                 FROM {user} u
-                JOIN {course} c ON c.id = $mailing->courseid
+                JOIN {course} c ON c.id = :courseid
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
-                WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_retro
+                WHERE lsl.timecreated < :timecreated $sql_retro
                 ";
+        $params['courseid'] = $mailing->courseid;
+        $params['timecreated'] = $start->getTimestamp();
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
         // retroactive mode
+        $join = "JOIN {user_enrolments} ue ON ue.userid = u.id
+                 JOIN {enrol} e ON e.id = ue.enrolid
+                 JOIN {course} c ON c.id = e.courseid";
+        $sql_where .= " AND c.id = :courseid ";
+        $params['courseid'] = $mailing->courseid;
         if (!$mailing->retroactive) {
-            $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
-                            JOIN {enrol} e ON e.id = ue.enrolid
-                            JOIN {course} c ON c.id = e.courseid ";
-            $sql_where .= " AND c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
-        } else {
-            $join_retro = '';
+            $sql_where .= " AND ue.timecreated >= :timecreated1 AND (ue.timestart = 0 OR ue.timestart >= :timestart) AND (ue.timeend = 0 OR ue.timeend >= :timeend)";
+            $params['timecreated1'] = $mailing->timecreated;
+            $params['timestart'] = $mailing->timecreated;
+            $params['timeend'] = $mailing->timecreated;
         }
 
         $start = new \DateTime();
@@ -381,13 +398,26 @@ function custommailing_getsql($mailing)
         $start->sub(new DateInterval($interval_duration));
 
         //ToDo : other modules than scorm
-        $sql = "SELECT DISTINCT u.*
+        if (empty($mailing->targetmodulestatus)) {
+            $sql = "SELECT DISTINCT u.*
                 FROM {user} u
-                $join_retro
-                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
-                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
-                WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_where
+                $join
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = :targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
+                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = :coursemoduleid
+                WHERE lsl.timecreated < :timecreated $sql_where
                 ";
+        } else {
+            $sql = "SELECT DISTINCT u.*
+                FROM {user} u
+                $join
+                LEFT JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = :targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
+                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = :coursemoduleid
+                WHERE (lsl.timecreated < :timecreated OR lsl.timecreated IS NULL) $sql_where
+                ";
+        }
+        $params['targetmoduleid'] = $mailing->targetmoduleid;
+        $params['coursemoduleid'] = $mailing->targetmoduleid;
+        $params['timecreated'] = $start->getTimestamp();
 
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
         // retroactive mode
@@ -395,7 +425,11 @@ function custommailing_getsql($mailing)
             $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
                             JOIN {enrol} e ON e.id = ue.enrolid 
                             JOIN {course} c ON c.id = e.courseid ";
-            $sql_where .= " c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
+            $sql_where .= " c.id = :courseid AND ue.timecreated >= :timecreated AND (ue.timestart = 0 OR ue.timestart >= :timestart) AND (ue.timeend = 0 OR ue.timeend >= :timeend)";
+            $params['courseid'] = $mailing->courseid;
+            $params['timecreated'] = $mailing->timecreated;
+            $params['timestart'] = $mailing->timecreated;
+            $params['timeend'] = $mailing->timecreated;
         } else {
             $join_retro = '';
         }
@@ -411,10 +445,14 @@ function custommailing_getsql($mailing)
         $sql = "SELECT DISTINCT u.*
                 FROM {user} u
                 $join_retro
-                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = $mailing->targetmoduleid AND lsl.action = 'launched' AND lsl.target = 'sco' 
-                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = $mailing->targetmoduleid
-                WHERE lsl.timecreated < " . $start->getTimestamp() . " $sql_where
+                JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = :contextinstanceid AND lsl.action = 'launched' AND lsl.target = 'sco' 
+                LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = :coursemoduleid
+                WHERE lsl.timecreated < :timecreated $sql_where
                 ";
+        $params['contextinstanceid'] = $mailing->targetmoduleid;
+        $params['coursemoduleid'] = $mailing->targetmoduleid;
+        $params['timecreated'] = $start->getTimestamp();
+
     } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
         custommailing_certifications($mailing->customcertmoduleid, $mailing->courseid);
         // retroactive mode
@@ -422,7 +460,11 @@ function custommailing_getsql($mailing)
             $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
                             JOIN {enrol} e ON e.id = ue.enrolid
                             JOIN {course} c ON c.id = e.courseid ";
-            $sql_where = " WHERE c.id = ".$mailing->courseid." AND ue.timecreated >= " . $mailing->timecreated . " AND (ue.timestart = 0 OR ue.timestart >= " . $mailing->timecreated . ") AND (ue.timeend = 0 OR ue.timeend >= " . $mailing->timecreated . ")";
+            $sql_where = " WHERE c.id = :courseid AND ue.timecreated >= :timecreated1 AND (ue.timestart = 0 OR ue.timestart >= :timestart) AND (ue.timeend = 0 OR ue.timeend >= :timeend)";
+            $params['courseid'] = $mailing->courseid;
+            $params['timecreated1'] = $mailing->timecreated;
+            $params['timestart'] = $mailing->timecreated;
+            $params['timeend'] = $mailing->timecreated;
         } else {
             $join_retro = '';
             $sql_where = '';
@@ -434,7 +476,12 @@ function custommailing_getsql($mailing)
                 $sql_where
                 ";
     }
-    return $sql;
+
+    $return = [
+        'sql' => $sql,
+        'params' => $params
+    ];
+    return $return;
 }
 
 /**
@@ -455,8 +502,8 @@ function custommailing_crontask() {
             FROM {user} u
             JOIN {custommailing_logs} rl ON rl.emailtouserid = u.id 
             JOIN {custommailing_mailing} rm ON rm.id = rl.custommailingmailingid
-            WHERE rl.emailstatus < " . MAILING_LOG_SENT;
-    $logs = $DB->get_recordset_sql($sql);
+            WHERE rl.emailstatus < :mailing_log_sent";
+    $logs = $DB->get_recordset_sql($sql, ['mailing_log_sent' => MAILING_LOG_SENT]);
 
     foreach ($logs as $log) {
 
@@ -477,7 +524,9 @@ function custommailing_crontask() {
     // Set emailstatus to MAILING_LOG_SENT on each sended email
     if (is_array($ids_to_update) && count($ids_to_update)) {
         $ids = implode(",", array_unique($ids_to_update));
-        $DB->execute("UPDATE {custommailing_logs} SET emailstatus = " . MAILING_LOG_SENT . " WHERE id IN ($ids)");
+        list($insql, $sqlparams) = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
+        $sqlparams['mailing_log_sent'] = MAILING_LOG_SENT;
+        $DB->execute("UPDATE {custommailing_logs} SET emailstatus = :mailing_log_sent WHERE id $insql", $sqlparams);
     }
 
 }

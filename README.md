@@ -71,8 +71,9 @@ When a user is deleted by Moodle then user data in this plugin will be deleted.
     * This will be displayed as 1 day but will in fact be 1 minute if the debug mode is activated for the plugin (see previous steps)
   * and target module is not completed by the user (yes)
 * Log in as first student and complete the scorm
+* Wait 1 minute
 * Launch the cron task manually (\mod_custommailing\task\cron_task)
-* Check the table mal_custommailing_logs : only the second student has been targeted
+* Check the table mdl_custommailing_logs : only the second student has been targeted
 * Check disabling a mailing in interface by consulting the custommailing activity as teacher or admin
 * Check deletion a mailing in interface by consulting the custommailing activity as teacher or admin
 
