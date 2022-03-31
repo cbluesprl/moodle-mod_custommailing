@@ -248,7 +248,6 @@ function custommailing_logs_generate()
     $mailings = Mailing::getAllToSend();
     foreach ($mailings as $mailing) {
         $sql = custommailing_getsql($mailing);
-        echo'<pre>';var_dump($mailing->id, $sql);
         if (!empty($sql['sql']) && !empty($sql['params'])) {
             $users = $DB->get_records_sql($sql['sql'], $sql['params']);
             if (is_array($users)) {
