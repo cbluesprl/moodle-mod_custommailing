@@ -635,4 +635,5 @@ function custommailing_certification($userid, $customcertid, $courseid)
             $DB->insert_record('customcert_issues', $customcertissue);
         }
     }
+    
 }
