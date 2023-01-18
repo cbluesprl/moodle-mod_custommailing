@@ -371,10 +371,10 @@ function custommailing_getsql($mailing)
                 FROM {user} u
                 JOIN {course} c ON c.id = :courseid
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
-                WHERE lsl.timecreated < :timecreated $sql_retro
+                WHERE lsl.timecreated < :timecreated1 $sql_retro
                 ";
         $params['courseid'] = $mailing->courseid;
-        $params['timecreated'] = $start->getTimestamp();
+        $params['timecreated1'] = $start->getTimestamp();
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
         // retroactive mode
         $join = "JOIN {user_enrolments} ue ON ue.userid = u.id
