@@ -522,8 +522,7 @@ function custommailing_crontask() {
 
     // Set emailstatus to MAILING_LOG_SENT on each sended email
     if (is_array($ids_to_update) && count($ids_to_update)) {
-        $ids = implode(",", array_unique($ids_to_update));
-        list($insql, $sqlparams) = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
+        list($insql, $sqlparams) = $DB->get_in_or_equal($ids_to_update, SQL_PARAMS_NAMED);
         $sqlparams['mailing_log_sent'] = MAILING_LOG_SENT;
         $DB->execute("UPDATE {custommailing_logs} SET emailstatus = :mailing_log_sent WHERE id $insql", $sqlparams);
     }
