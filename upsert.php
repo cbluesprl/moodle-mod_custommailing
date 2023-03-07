@@ -84,7 +84,7 @@ if ($form->is_cancelled()) {
         $mailing->mailingmode = $data->mailingmodemoduleoption;
         $mailing->mailingdelay = (int) $data->mailingdelaymodule;
     } else {
-        $mailing->mailingmode = (int) empty($data->mailingmode) ? $data->mailingmode : 0;
+        $mailing->mailingmode = (int) (!empty($data->mailingmode) ? $data->mailingmode : 0);
         $mailing->mailingdelay = null;
     }
     $mailing->mailingstatus = (bool) $data->mailingstatus;
