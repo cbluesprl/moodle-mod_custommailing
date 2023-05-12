@@ -36,6 +36,7 @@ define('MAILING_MODE_DAYSFROMLASTCONNECTION', 5);
 define('MAILING_MODE_DAYSFROMFIRSTLAUNCH', 6);
 define('MAILING_MODE_DAYSFROMLASTLAUNCH', 7);
 define('MAILING_MODE_SEND_CERTIFICATE', 8);
+define('MAILING_MODE_DAYSFROMLASTCONNECTION_NOTCOMPLETED', 9);
 
 define('MAILING_STATUS_DISABLED', 0);
 define('MAILING_STATUS_ENABLED', 1);
@@ -351,13 +352,22 @@ function custommailing_getsql($mailing)
                 WHERE e.courseid = :courseid AND ue.timestart < " . $start->getTimestamp() . " $sql_retro
                 ";
         $params['courseid'] = $mailing->courseid;
-    } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION && !empty($mailing->courseid)) {
+    } elseif (
+        ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION || $mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION_NOTCOMPLETED)
+        && !empty($mailing->courseid)
+    ) {
         // retroactive mode
         if (!$mailing->retroactive) {
             $sql_retro = " AND lsl.timecreated >= :timecreated1";
             $params['timecreated1'] = $mailing->timecreated;
         } else {
             $sql_retro = '';
+        }
+
+        if ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION_NOTCOMPLETED) {
+            $sql_notcompleted = " AND cc.id IS NULL";
+        } else {
+            $sql_notcompleted = '';
         }
 
         $start = new \DateTime();
@@ -371,9 +381,11 @@ function custommailing_getsql($mailing)
                 FROM {user} u
                 JOIN {course} c ON c.id = :courseid
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 50 AND lsl.action = 'viewed' AND lsl.courseid = c.id
-                WHERE lsl.timecreated < :timecreated $sql_retro
+                LEFT JOIN {course_completions} cc ON cc.course = :courseid1 AND cc.userid = u.id              
+                WHERE lsl.timecreated < :timecreated $sql_retro $sql_notcompleted
                 ";
         $params['courseid'] = $mailing->courseid;
+        $params['courseid1'] = $mailing->courseid;
         $params['timecreated'] = $start->getTimestamp();
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH && !empty($mailing->targetmoduleid) && !empty($mailing->mailingdelay)) {
         // retroactive mode
@@ -634,5 +646,5 @@ function custommailing_certification($userid, $customcertid, $courseid)
             $DB->insert_record('customcert_issues', $customcertissue);
         }
     }
-    
+
 }

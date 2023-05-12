@@ -124,7 +124,7 @@ if ($form->is_cancelled()) {
         //Todo v2 : starttime
         $data->starttimehour = 0; //floor($data->starttime / 3600);
         $data->starttimeminute = 0; //floor(($data->starttime / 60) % 60);
-        if (empty($data->customcertmoduleid) && in_array($data->mailingmode, [MAILING_MODE_DAYSFROMINSCRIPTIONDATE, MAILING_MODE_DAYSFROMLASTCONNECTION, MAILING_MODE_DAYSFROMFIRSTLAUNCH, MAILING_MODE_DAYSFROMLASTLAUNCH])) {
+        if (empty($data->customcertmoduleid) && in_array($data->mailingmode, [MAILING_MODE_DAYSFROMINSCRIPTIONDATE, MAILING_MODE_DAYSFROMLASTCONNECTION, MAILING_MODE_DAYSFROMLASTCONNECTION_NOTCOMPLETED, MAILING_MODE_DAYSFROMFIRSTLAUNCH, MAILING_MODE_DAYSFROMLASTLAUNCH])) {
             $data->mailingmode = 'option';
             $data->mailingmodeoption = $mailing->mailingmode;
         }

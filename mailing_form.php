@@ -165,6 +165,7 @@ class mailing_form extends moodleform
             'select', 'mailingmodeoption', null, [
                 MAILING_MODE_DAYSFROMINSCRIPTIONDATE => get_string('courseenroldate', 'mod_custommailing'),
                 MAILING_MODE_DAYSFROMLASTCONNECTION => get_string('courselastaccess', 'mod_custommailing'),
+                MAILING_MODE_DAYSFROMLASTCONNECTION_NOTCOMPLETED => get_string('courselastaccessnotcompleted', 'mod_custommailing'),
             ]
         );
         $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_custommailing'), ' ', false);

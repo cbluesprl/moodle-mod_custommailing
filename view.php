@@ -70,6 +70,8 @@ foreach ($mailings as $mailing) {
         $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_custommailing') . ' ' . get_string('courseenroldate', 'mod_custommailing');
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION) {
         $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_custommailing') . ' ' . get_string('courselastaccess', 'mod_custommailing');
+    } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTCONNECTION_NOTCOMPLETED) {
+        $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_custommailing') . ' ' . get_string('courselastaccessnotcompleted', 'mod_custommailing');
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMFIRSTLAUNCH) {
         $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_custommailing') . ' ' . get_string('firstlaunch', 'mod_custommailing');
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH) {
