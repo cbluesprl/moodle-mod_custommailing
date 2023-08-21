@@ -73,19 +73,19 @@ if ($form->is_cancelled()) {
     $mailing->mailingsubject = $data->mailingsubject;
     $mailing->mailingcontent = $data->mailingcontent['text'];
     $mailing->mailingcontentformat = $data->mailingcontent['format'];
+    $mailing->mailingmode = 0;
+    $mailing->mailingdelay = null;
+
     if (empty($data->mailingmodecompletion)) {
         $data->mailingmodecompletion = 0;
     }
     $mailing->targetmodulestatus = $data->mailingmodecompletion;
-    if ($data->mailingmode == 'option' && !empty($data->mailingmodeoption)) {
+    if (isset($data->mailingmode) && $data->mailingmode == 'option' && !empty($data->mailingmodeoption)) {
         $mailing->mailingmode = $data->mailingmodeoption;
         $mailing->mailingdelay = (int) $data->mailingdelay;
-    } elseif ($data->mailingmodemodule == 'option' && !empty($data->mailingmodemoduleoption)) {
+    } elseif (isset($data->mailingmodemodule) && $data->mailingmodemodule == 'option' && !empty($data->mailingmodemoduleoption)) {
         $mailing->mailingmode = $data->mailingmodemoduleoption;
         $mailing->mailingdelay = (int) $data->mailingdelaymodule;
-    } else {
-        $mailing->mailingmode = (int) (!empty($data->mailingmode) ? $data->mailingmode : 0);
-        $mailing->mailingdelay = null;
     }
     $mailing->mailingstatus = (bool) $data->mailingstatus;
     $mailing->retroactive = (bool) $data->retroactive;
@@ -93,7 +93,6 @@ if ($form->is_cancelled()) {
         $data->targetmoduleid = 0;
     }
     $mailing->targetmoduleid = (int) $data->targetmoduleid;
-    //Todo v2 : starttime
     $mailing->starttime = 0; //$data->starttimehour * 3600 + $data->starttimeminute * 60;
     if (!empty($data->customcert)) {
         $mailing->mailingmode = MAILING_MODE_SEND_CERTIFICATE;
