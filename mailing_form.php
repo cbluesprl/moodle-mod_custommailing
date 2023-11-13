@@ -169,7 +169,7 @@ class mailing_form extends moodleform
         );
         $mform->addGroup($mailing_mode, 'mailingmodegroup', get_string('sendmailing', 'mod_custommailing'), ' ', false);
         $mform->addElement('radio', 'mailingmode', null, get_string('atcourseenrol', 'mod_custommailing'), MAILING_MODE_REGISTRATION);
-        $mform->setType('mailingmode', PARAM_INT);
+        $mform->setType('mailingmode', PARAM_RAW);
         $mform->setDefault('mailingmode', 0);
         $mform->hideIf('mailingmode', 'source', 'noteq', 2);
         $mform->hideIf('mailingdelay', 'source', 'noteq', 2);

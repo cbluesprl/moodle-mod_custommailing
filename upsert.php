@@ -73,7 +73,7 @@ if ($form->is_cancelled()) {
     $mailing->mailingsubject = $data->mailingsubject;
     $mailing->mailingcontent = $data->mailingcontent['text'];
     $mailing->mailingcontentformat = $data->mailingcontent['format'];
-    $mailing->mailingmode = 0;
+    $mailing->mailingmode = (int) (!empty($data->mailingmode) ? $data->mailingmode : 0);
     $mailing->mailingdelay = null;
 
     if (empty($data->mailingmodecompletion)) {
@@ -87,6 +87,7 @@ if ($form->is_cancelled()) {
         $mailing->mailingmode = $data->mailingmodemoduleoption;
         $mailing->mailingdelay = (int) $data->mailingdelaymodule;
     }
+
     $mailing->mailingstatus = (bool) $data->mailingstatus;
     $mailing->retroactive = (bool) $data->retroactive;
     if (empty($data->targetmoduleid)) {
