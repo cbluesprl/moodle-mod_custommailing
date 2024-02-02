@@ -245,20 +245,34 @@ function custommailing_logs_generate()
 {
     global $DB;
 
+    require_once '../../lib/grouplib.php';
     $mailings = Mailing::getAllToSend();
     foreach ($mailings as $mailing) {
+        $groups = [];
+        if(!empty($mailing->mailinggroups)) {
+            $groups = explode(',', $mailing->mailinggroups);
+        }
         $sql = custommailing_getsql($mailing);
         if (!empty($sql['sql']) && !empty($sql['params'])) {
             $users = $DB->get_records_sql($sql['sql'], $sql['params']);
             if (is_array($users)) {
                 foreach ($users as $user) {
                     if (validate_email($user->email) && !$DB->get_record('custommailing_logs', ['custommailingmailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
-                        $record = new stdClass();
-                        $record->custommailingmailingid = (int) $mailing->id;
-                        $record->emailtouserid = (int) $user->id;
-                        $record->emailstatus = MAILING_LOG_PROCESSING;
-                        $record->timecreated = time();
-                        MailingLog::create($record);
+                            $is_member = false;
+                            foreach($groups as $group) {
+                                if(groups_is_member($group, $user->id)) {
+                                    $is_member = true;
+                                }
+                            }
+
+                        if(empty($groups) || (!empty($groups) && $is_member)) {
+                            $record = new stdClass();
+                            $record->custommailingmailingid = (int) $mailing->id;
+                            $record->emailtouserid = (int) $user->id;
+                            $record->emailstatus = MAILING_LOG_PROCESSING;
+                            $record->timecreated = time();
+                            MailingLog::create($record);
+                        }
                     }
                 }
             }
@@ -295,7 +309,6 @@ function custommailing_getsql($mailing)
     } else {
         $sql_where = '';
     }
-
     // mailing modes
     if ($mailing->mailingmode == MAILING_MODE_FIRSTLAUNCH && !empty($mailing->targetmoduleid)) {
         $sql = "SELECT DISTINCT u.*
@@ -497,15 +510,13 @@ function custommailing_crontask() {
 
     $ids_to_update = [];
 
-    $sql = "SELECT u.*, u.id as userid, rm.mailingsubject, rm.mailingcontent, rl.id as logid, rm.customcertmoduleid
+    $sql = "SELECT u.*, u.id as userid, rm.mailinggroups, rm.mailingsubject, rm.mailingcontent, rl.id as logid, rm.customcertmoduleid
             FROM {user} u
             JOIN {custommailing_logs} rl ON rl.emailtouserid = u.id 
             JOIN {custommailing_mailing} rm ON rm.id = rl.custommailingmailingid
             WHERE rl.emailstatus < :mailing_log_sent";
     $logs = $DB->get_recordset_sql($sql, ['mailing_log_sent' => MAILING_LOG_SENT]);
-
     foreach ($logs as $log) {
-
         if (!empty($log->customcertmoduleid)) {
             $attachment = custommailing_getcertificate($log->userid, $log->customcertmoduleid);
         } else {
@@ -634,5 +645,5 @@ function custommailing_certification($userid, $customcertid, $courseid)
             $DB->insert_record('customcert_issues', $customcertissue);
         }
     }
-    
+
 }

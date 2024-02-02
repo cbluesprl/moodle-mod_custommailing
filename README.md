@@ -9,6 +9,7 @@ Send an email to each user enrolled in the course :
 * x days(s) after last access of the course
 * x days(s) after first launch of a scorm (optional scorm completion status)
 * x days(s) after last launch of a scorm (optional scorm completion status)
+* to (a) specific group(s)
 
 * Retroactive mode available for each mailing
   

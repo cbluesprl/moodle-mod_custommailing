@@ -29,6 +29,7 @@ require_once __DIR__ . '/../../config.php';
 
 global $CFG, $DB, $PAGE, $OUTPUT;
 
+require_once $CFG->dirroot . '/lib/grouplib.php';
 require_once $CFG->dirroot . '/mod/custommailing/lib.php';
 require_once $CFG->dirroot . '/mod/custommailing/mailing_form.php';
 
@@ -75,6 +76,18 @@ foreach ($mailings as $mailing) {
     } elseif ($mailing->mailingmode == MAILING_MODE_DAYSFROMLASTLAUNCH) {
         $mailing->mailingmodestr = $mailing->mailingdelay . ' ' . get_string('daysafter', 'mod_custommailing') . ' ' . get_string('lastlaunch', 'mod_custommailing');
     }
+
+    $groups_html = "";
+    if(!empty($mailing->mailinggroups)) {
+        $mailinggroups = explode(',', $mailing->mailinggroups);
+        foreach($mailinggroups as $mailinggroup) {
+            $group_name = groups_get_group_name($mailinggroup);
+            if(!empty($group_name)) {
+                $groups_html .= '<div class="badge badge-pill badge-light">' . $group_name . '</div>';
+            }
+        }
+    }
+
     echo
         '<div class="card">
            <div class="card-header" id="mailing_' . $mailing->id . '">
@@ -103,8 +116,12 @@ foreach ($mailings as $mailing) {
     } else {
         echo    '<p><strong>' . get_string('targetmoduleid', 'custommailing') . '</strong> : ' . (isset($activities[$mailing->targetmoduleid]) ? $activities[$mailing->targetmoduleid] : 'not found') . '</p>';
     }
-    echo        '<p><strong>' . get_string('sendmailing', 'custommailing') . '</strong> : ' . $mailing->mailingmodestr . '</p>
-                <p><strong>' . get_string('mailingsubject', 'custommailing') . '</strong> : ' . $mailing->mailingsubject . '</p>
+    echo        '<p><strong>' . get_string('sendmailing', 'custommailing') . '</strong> : ' . $mailing->mailingmodestr . '</p>';
+
+    if(!empty($groups_html)) {
+        echo '<p><strong>' . get_string('mailinggroups', 'custommailing') . '</strong> : ' . $groups_html . '</p>';
+    }
+    echo        '<p><strong>' . get_string('mailingsubject', 'custommailing') . '</strong> : ' . $mailing->mailingsubject . '</p>
                 <p><strong>' . get_string('mailingcontent', 'custommailing') . '</strong> : ' . $mailing->mailingcontent . '</p>
                 <p><strong>' . get_string('timecreated', 'custommailing') . '</strong> : ' . userdate($mailing->timecreated) . '</p>
                 <p><strong>' . get_string('timemodified', 'custommailing') . '</strong> : ' . userdate($mailing->timemodified) . '</p>

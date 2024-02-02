@@ -53,5 +53,18 @@ function xmldb_custommailing_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021033100, 'custommailing');
     }
 
+    if ($oldversion < 2024020200) {
+
+        $table = new xmldb_table('custommailing_mailing');
+        $field = new xmldb_field('mailinggroups', XMLDB_TYPE_CHAR, '255', null, false, null, null, 'mailinglang');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Savepoint reached.
+        upgrade_mod_savepoint(true, 2024020200, 'custommailing');
+    }
+
     return true;
 }

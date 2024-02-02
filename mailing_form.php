@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die;
 
 global $CFG;
 require_once $CFG->libdir . '/formslib.php';
+require_once '../../lib/grouplib.php';
 
 /**
  * Class mailing_form
@@ -46,12 +47,13 @@ class mailing_form extends moodleform
         $mform =& $this->_form;
         $course_module_context = $PAGE->context;
         $custom_cert = core_plugin_manager::instance()->get_plugin_info('mod_customcert');
+        $courseid = $COURSE->id;
         if (!empty($this->_customdata['mailingid'])) {
             $mailing = \mod_custommailing\Mailing::get($this->_customdata['mailingid']);
         }
 
         $days = [];
-        for ($i = 1; $i <= 30; $i++) {
+        for ($i = 1; $i <= 60; $i++) {
             $days[$i] = $i;
         }
 
@@ -124,7 +126,7 @@ class mailing_form extends moodleform
 
         // Add custom cert
         if ($cert) {
-            $mform->addElement('select', 'customcert', get_string('certificate', 'mod_custommailing'), custommailing_getcustomcertsfromcourse($COURSE->id));
+            $mform->addElement('select', 'customcert', get_string('certificate', 'mod_custommailing'), custommailing_getcustomcertsfromcourse($courseid));
             $mform->setType('customcert', PARAM_INT);
             $mform->hideIf('customcert', 'source', 'noteq', 3);
             $mform->addHelpButton('customcert', 'customcert', 'mod_custommailing');
@@ -191,6 +193,20 @@ class mailing_form extends moodleform
         $mform->addHelpButton('retroactive', 'retroactive', 'mod_custommailing');
         if (!empty($this->_customdata['mailingid'])) {
             $mform->disabledIf('retroactive', 'mailingid', 'noteq', 0);
+        }
+
+        // Add groups
+        if($groups = groups_get_all_groups($courseid)) {
+            foreach($groups as $key => $group) {
+                $groups[$key] = format_string($group->name, true, ['context' => $course_module_context]);
+            }
+        }
+        if(!empty($groups)) {
+            $input = $mform->addElement('select', 'mailinggroups', get_string('mailinggroups', 'mod_custommailing'), $groups);
+            $input->setMultiple(true);
+            $input->setSize(count($groups) > 5 ? 10 : 5);
+            $mform->setDefault('mailinggroups', !empty($mailing->mailinggroups) ? $mailing->mailinggroups : []);
+            $mform->addHelpButton('mailinggroups', 'mailinggroups', 'mod_custommailing');
         }
 
         // Add subject

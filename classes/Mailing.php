@@ -42,6 +42,7 @@ require_once $CFG->dirroot . '/mod/custommailing/lib.php';
  * @property int custommailingid
  * @property string mailingname
  * @property string mailinglang
+ * @property array mailinggroups
  * @property string mailingsubject
  * @property string mailingcontent
  * @property int mailingcontentformat
@@ -65,7 +66,6 @@ class Mailing {
         global $DB;
 
         $record->timecreated = $record->timemodified = time();
-
         return $DB->insert_record('custommailing_mailing', $record);
     }
 
