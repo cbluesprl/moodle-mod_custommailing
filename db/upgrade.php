@@ -66,5 +66,23 @@ function xmldb_custommailing_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024020200, 'custommailing');
     }
 
+    if ($oldversion < 2024070500) {
+
+        // Define field mailingcohorts to be added to custommailing_mailing.
+        $table = new xmldb_table('custommailing_mailing');
+
+        $field = new xmldb_field('mailingcohorts', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'mailinggroups');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('groupcohortscombination', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'mailingcohorts');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2024070500, 'custommailing');
+    }
+
     return true;
 }

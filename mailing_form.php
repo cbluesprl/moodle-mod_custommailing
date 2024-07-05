@@ -27,8 +27,8 @@ defined('MOODLE_INTERNAL') || die;
 
 global $CFG;
 require_once $CFG->libdir . '/formslib.php';
-require_once '../../lib/grouplib.php';
-
+require_once $CFG->dirroot . '/lib/grouplib.php';
+require_once $CFG->dirroot . '/cohort/lib.php';
 /**
  * Class mailing_form
  */
@@ -202,12 +202,30 @@ class mailing_form extends moodleform
             }
         }
         if(!empty($groups)) {
-            $input = $mform->addElement('select', 'mailinggroups', get_string('mailinggroups', 'mod_custommailing'), $groups);
+            $input = $mform->addElement('searchableselector', 'mailinggroups', get_string('mailinggroups', 'mod_custommailing'), $groups);
             $input->setMultiple(true);
             $input->setSize(count($groups) > 5 ? 10 : 5);
             $mform->setDefault('mailinggroups', !empty($mailing->mailinggroups) ? $mailing->mailinggroups : []);
             $mform->addHelpButton('mailinggroups', 'mailinggroups', 'mod_custommailing');
         }
+
+        $cohorts = cohort_get_all_cohorts(0, 0);
+        $cohorts_name_by_ids = [];
+        foreach ($cohorts['cohorts'] as $cohort) {
+            $cohorts_name_by_ids[$cohort->id] = $cohort->name;
+        }
+
+        $input = $mform->addElement('searchableselector', 'mailingcohorts', get_string('mailingcohorts', 'mod_custommailing'), $cohorts_name_by_ids);
+        $input->setMultiple(true);
+//        $input->setSize(count($cohorts) > 5 ? 10 : 5);
+            $mform->setDefault('mailingcohorts', !empty($mailing->mailinggroups) ? $mailing->mailinggroups : []);
+        $mform->addHelpButton('mailingcohorts', 'mailingcohorts', 'mod_custommailing');
+
+        $options = [
+            '0' => get_string('usermemberofselectedgroupsorselectedcohorts', 'mod_custommailing'),
+            '1' => get_string('usermemberofselectedgroupsandselectedcohorts', 'mod_custommailing'),
+        ];
+        $mform->addElement('select', 'groupcohortscombination', get_string('groupcohortscombination', 'mod_custommailing'), $options);
 
         // Add subject
         $mform->addElement('text', 'mailingsubject', get_string('mailingsubject', 'mod_custommailing'));

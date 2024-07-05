@@ -243,17 +243,23 @@ function custommailing_getCustomcert($customcertid)
  */
 function custommailing_logs_generate()
 {
-    global $DB;
+    global $CFG, $DB;
 
     $module = $DB->get_record('modules', ['name' => 'custommailing']);
 
-    require_once '../../lib/grouplib.php';
+    require_once $CFG->dirroot . '/lib/grouplib.php';
+    require_once $CFG->dirroot . '/cohort/lib.php';
+
     $mailings = Mailing::getAllToSend();
     foreach ($mailings as $mailing) {
         $cm = $DB->get_record('course_modules',['instance' => $mailing->custommailingid, 'module' => $module->id]);
         $groups = [];
         if(!empty($mailing->mailinggroups)) {
             $groups = explode(',', $mailing->mailinggroups);
+        }
+        $cohorts = [];
+        if(!empty($mailing->mailingcohorts)) {
+            $cohorts = explode(',', $mailing->mailingcohorts);
         }
         $sql = custommailing_getsql($mailing);
         if (!empty($sql['sql']) && !empty($sql['params'])) {
@@ -264,14 +270,32 @@ function custommailing_logs_generate()
                         $modinfo = get_fast_modinfo($mailing->courseid, $user->id);
                         $cm = $modinfo->get_cm($cm->id);
                         if ($cm->available) {
-                            $is_member = false;
-                            foreach($groups as $group) {
-                                if(groups_is_member($group, $user->id)) {
-                                    $is_member = true;
+                            $group_ok = true;
+                            $cohort_ok = true;
+
+                            if (!empty($groups)) {
+                                $group_ok = false;
+                                foreach($groups as $group) {
+                                    if(groups_is_member($group, $user->id)) {
+                                        $group_ok = true;
+                                    }
+                                }
+                            }
+                            if (!empty($cohorts)) {
+                                $cohort_ok = false;
+                                foreach($cohorts as $cohort) {
+                                    if(cohort_is_member($cohort, $user->id)) {
+                                        $cohort_ok = true;
+                                    }
                                 }
                             }
 
-                            if(empty($groups) || (!empty($groups) && $is_member)) {
+                            $send = $group_ok || $cohort_ok;
+                            if ($mailing->groupcohortscombination) {
+                                $send = $group_ok && $cohort_ok;
+                            }
+
+                            if($send) {
                                 $record = new stdClass();
                                 $record->custommailingmailingid = (int) $mailing->id;
                                 $record->emailtouserid = (int) $user->id;

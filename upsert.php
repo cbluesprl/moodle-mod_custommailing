@@ -71,6 +71,8 @@ if ($form->is_cancelled()) {
     $mailing->mailingname = $data->mailingname;
     $mailing->mailinglang = 'en'; //disabled in v1
     $mailing->mailinggroups = is_array($data->mailinggroups) ? implode(',', $data->mailinggroups) : null;
+    $mailing->mailingcohorts = is_array($data->mailingcohorts) ? implode(',', $data->mailingcohorts) : null;
+    $mailing->groupcohortscombination = $data->groupcohortscombination;
     $mailing->mailingsubject = $data->mailingsubject;
     $mailing->mailingcontent = $data->mailingcontent['text'];
     $mailing->mailingcontentformat = $data->mailingcontent['format'];
