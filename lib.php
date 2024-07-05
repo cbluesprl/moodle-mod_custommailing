@@ -245,9 +245,12 @@ function custommailing_logs_generate()
 {
     global $DB;
 
+    $module = $DB->get_record('modules', ['name' => 'custommailing']);
+
     require_once '../../lib/grouplib.php';
     $mailings = Mailing::getAllToSend();
     foreach ($mailings as $mailing) {
+        $cm = $DB->get_record('course_modules',['instance' => $mailing->custommailingid, 'module' => $module->id]);
         $groups = [];
         if(!empty($mailing->mailinggroups)) {
             $groups = explode(',', $mailing->mailinggroups);
@@ -258,6 +261,9 @@ function custommailing_logs_generate()
             if (is_array($users)) {
                 foreach ($users as $user) {
                     if (validate_email($user->email) && !$DB->get_record('custommailing_logs', ['custommailingmailingid' => $mailing->id, 'emailtouserid' => $user->id])) {
+                        $modinfo = get_fast_modinfo($mailing->courseid, $user->id);
+                        $cm = $modinfo->get_cm($cm->id);
+                        if ($cm->available) {
                             $is_member = false;
                             foreach($groups as $group) {
                                 if(groups_is_member($group, $user->id)) {
@@ -265,13 +271,14 @@ function custommailing_logs_generate()
                                 }
                             }
 
-                        if(empty($groups) || (!empty($groups) && $is_member)) {
-                            $record = new stdClass();
-                            $record->custommailingmailingid = (int) $mailing->id;
-                            $record->emailtouserid = (int) $user->id;
-                            $record->emailstatus = MAILING_LOG_PROCESSING;
-                            $record->timecreated = time();
-                            MailingLog::create($record);
+                            if(empty($groups) || (!empty($groups) && $is_member)) {
+                                $record = new stdClass();
+                                $record->custommailingmailingid = (int) $mailing->id;
+                                $record->emailtouserid = (int) $user->id;
+                                $record->emailstatus = MAILING_LOG_PROCESSING;
+                                $record->timecreated = time();
+                                MailingLog::create($record);
+                            }
                         }
                     }
                 }
