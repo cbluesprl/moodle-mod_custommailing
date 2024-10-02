@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_custommailing\Mailing;
+
 defined('MOODLE_INTERNAL') || die;
 
 global $CFG;
@@ -49,7 +51,7 @@ class mailing_form extends moodleform
         $custom_cert = core_plugin_manager::instance()->get_plugin_info('mod_customcert');
         $courseid = $COURSE->id;
         if (!empty($this->_customdata['mailingid'])) {
-            $mailing = \mod_custommailing\Mailing::get($this->_customdata['mailingid']);
+            $mailing = Mailing::get($this->_customdata['mailingid']);
         }
 
         $days = [];
@@ -106,11 +108,6 @@ class mailing_form extends moodleform
         $mform->addElement('text', 'mailingname', get_string('mailingname', 'mod_custommailing'), 'maxlength="255" size="32"');
         $mform->setType('mailingname', PARAM_RAW_TRIMMED);
         $mform->addRule('mailingname', get_string('required'), 'required');
-
-        // Todo v2 : Add lang
-//        $mform->addElement('select', 'mailinglang', get_string('mailinglang', 'mod_custommailing'), get_string_manager()->get_list_of_translations());
-//        $mform->setType('mailinglang', PARAM_LANG);
-//        $mform->addRule('mailinglang', get_string('required'), 'required');
 
         // Select Source
         $mform->addElement('select', 'source', get_string('selectsource', 'mod_custommailing'), $source);
@@ -217,7 +214,6 @@ class mailing_form extends moodleform
 
         $input = $mform->addElement('searchableselector', 'mailingcohorts', get_string('mailingcohorts', 'mod_custommailing'), $cohorts_name_by_ids);
         $input->setMultiple(true);
-//        $input->setSize(count($cohorts) > 5 ? 10 : 5);
             $mform->setDefault('mailingcohorts', !empty($mailing->mailinggroups) ? $mailing->mailinggroups : []);
         $mform->addHelpButton('mailingcohorts', 'mailingcohorts', 'mod_custommailing');
 
@@ -237,14 +233,6 @@ class mailing_form extends moodleform
         $mform->setType('mailingcontent', PARAM_RAW);
         $mform->addRule('mailingcontent', get_string('required'), 'required');
         $mform->addHelpButton('mailingcontent', 'mailingcontent', 'mod_custommailing');
-
-        //Todo v2 : starttime
-//        $start_time = [];
-//        $start_time[] =& $mform->createElement('select', 'starttimehour', '', $hours);
-//        $start_time[] =& $mform->createElement('static', '', null, '&nbsp:&nbsp;');
-//        $start_time[] =& $mform->createElement('select', 'starttimeminute', '', $minutes);
-//        $mform->addGroup($start_time, 'starttime', get_string('starttime', 'mod_custommailing'), ' ', false);
-//        $mform->addRule('starttime', get_string('required'), 'required');
 
         // Add status
         $mform->addElement('selectyesno', 'mailingstatus', get_string('enabled', 'mod_custommailing'));
