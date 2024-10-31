@@ -83,10 +83,10 @@ if ($form->is_cancelled()) {
         $data->mailingmodecompletion = 0;
     }
     $mailing->targetmodulestatus = $data->mailingmodecompletion;
-    if (isset($data->mailingmode) && $data->mailingmode == 'option' && !empty($data->mailingmodeoption)) {
+    if (!empty($data->mailingmodeoption)) {
         $mailing->mailingmode = $data->mailingmodeoption;
         $mailing->mailingdelay = (int) $data->mailingdelay;
-    } elseif (isset($data->mailingmodemodule) && $data->mailingmodemodule == 'option' && !empty($data->mailingmodemoduleoption)) {
+    } elseif (!empty($data->mailingmodemoduleoption)) {
         $mailing->mailingmode = $data->mailingmodemoduleoption;
         $mailing->mailingdelay = (int) $data->mailingdelaymodule;
     }
@@ -127,9 +127,15 @@ if ($form->is_cancelled()) {
         //Todo v2 : starttime
         $data->starttimehour = 0; //floor($data->starttime / 3600);
         $data->starttimeminute = 0; //floor(($data->starttime / 60) % 60);
+
         if (empty($data->customcertmoduleid) && in_array($data->mailingmode, [MAILING_MODE_DAYSFROMINSCRIPTIONDATE, MAILING_MODE_DAYSFROMLASTCONNECTION, MAILING_MODE_DAYSFROMFIRSTLAUNCH, MAILING_MODE_DAYSFROMLASTLAUNCH])) {
             $data->mailingmode = 'option';
             $data->mailingmodeoption = $mailing->mailingmode;
+        }
+        if($data->targetmodulestatus) {
+            $data->mailingmodemodule = 'option';
+            $data->mailingmode = '';
+            $data->mailingdelaymodule = $data->mailingdelay;
         }
         if (!empty($data->targetmoduleid)) {
             $data->source = MAILING_SOURCE_MODULE;
@@ -139,6 +145,7 @@ if ($form->is_cancelled()) {
             $data->source = MAILING_SOURCE_COURSE;
         }
         $data->retroactive = $mailing->retroactive;
+
         $form->set_data($data);
     }
     $form->display();
