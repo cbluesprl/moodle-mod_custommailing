@@ -76,7 +76,7 @@ if ($form->is_cancelled()) {
     $mailing->mailingsubject = $data->mailingsubject;
     $mailing->mailingcontent = $data->mailingcontent['text'];
     $mailing->mailingcontentformat = $data->mailingcontent['format'];
-    $mailing->mailingmode = (int) (!empty($data->mailingmode) ? $data->mailingmode : 0);
+    $mailing->mailingmode = (int) (!empty($data->mailingmode) ? $data->mailingmode : $data->mailingmodemoduleoption);
     $mailing->mailingdelay = null;
 
     if (empty($data->mailingmodecompletion)) {
@@ -134,8 +134,9 @@ if ($form->is_cancelled()) {
         }
         if($data->targetmodulestatus) {
             $data->mailingmodemodule = 'option';
-            $data->mailingmode = '';
             $data->mailingdelaymodule = $data->mailingdelay;
+            $data->mailingmodemoduleoption = $data->mailingmode;
+            $data->mailingmode = '';
         }
         if (!empty($data->targetmoduleid)) {
             $data->source = MAILING_SOURCE_MODULE;

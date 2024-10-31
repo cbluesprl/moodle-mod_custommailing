@@ -143,6 +143,7 @@ class mailing_form extends moodleform
                 MAILING_MODE_DAYSFROMLASTLAUNCH => get_string('lastlaunch', 'mod_custommailing'),
             ]
         );
+
         $mailing_mode_module[] =& $mform->createElement('checkbox', 'mailingmodecompletion', get_string('andtargetactivitynotcompleted', 'mod_custommailing'));
         $mform->addGroup($mailing_mode_module, 'mailingmodemodulegroup', get_string('sendmailing', 'mod_custommailing'), ' ', false);
         $mform->setType('mailingmodemodule', PARAM_INT);
@@ -151,6 +152,7 @@ class mailing_form extends moodleform
         $mform->hideIf('mailingdelaymodule', 'source', 'noteq', 1);
         $mform->hideIf('mailingmodemoduleoption', 'source', 'noteq', 1);
         $mform->hideIf('mailingmodemodulegroup', 'source', 'noteq', 1);
+
         if (!empty($source[MAILING_SOURCE_COURSE]) && !empty($mailing->mailingmode)) {
             $mform->setDefault('mailingmodemoduleoption', $mailing->mailingmode);
             if (!empty($mailing->mailingdelay)) {
