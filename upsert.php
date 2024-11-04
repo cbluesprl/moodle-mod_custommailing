@@ -76,19 +76,30 @@ if ($form->is_cancelled()) {
     $mailing->mailingsubject = $data->mailingsubject;
     $mailing->mailingcontent = $data->mailingcontent['text'];
     $mailing->mailingcontentformat = $data->mailingcontent['format'];
-    $mailing->mailingmode = (int) (!empty($data->mailingmode) ? $data->mailingmode : $data->mailingmodemoduleoption);
+
+    if($data->mailingmode == '2') {
+        // Si c'est en option on vérifie si c'est pour une formation ou un scorm.
+        $mailing->mailingmode = '';
+        $mailing->mailingmodeoption = (int) $data->mailingmode;
+    } else {
+        // Sinon c'est d'office pour une inscription
+        $mailing->mailingmode = (!empty($data->mailingmodeoption) ? $data->mailingmodeoption : $data->mailingmodemoduleoption);
+    }
+
     $mailing->mailingdelay = null;
 
     if (empty($data->mailingmodecompletion)) {
         $data->mailingmodecompletion = 0;
     }
     $mailing->targetmodulestatus = $data->mailingmodecompletion;
-    if (!empty($data->mailingmodeoption)) {
+    if (!empty($data->mailingmodeoption)  && $data->mailingmode != '2') {
         $mailing->mailingmode = $data->mailingmodeoption;
         $mailing->mailingdelay = (int) $data->mailingdelay;
     } elseif (!empty($data->mailingmodemoduleoption)) {
         $mailing->mailingmode = $data->mailingmodemoduleoption;
         $mailing->mailingdelay = (int) $data->mailingdelaymodule;
+    } else {
+        $mailing->mailingmode = 2;
     }
 
     $mailing->mailingstatus = (bool) $data->mailingstatus;
@@ -104,6 +115,7 @@ if ($form->is_cancelled()) {
     } else {
         $mailing->customcertmoduleid = null;
     }
+
     if ($action == 'create') {
         Mailing::create($mailing);
         redirect(new moodle_url('/mod/custommailing/view.php', ['id' => $cm->id]), get_string('mailingadded', 'mod_custommailing'), null, notification::NOTIFY_SUCCESS);
@@ -135,7 +147,7 @@ if ($form->is_cancelled()) {
         if($data->targetmodulestatus) {
             $data->mailingmodemodule = 'option';
             $data->mailingdelaymodule = $data->mailingdelay;
-            $data->mailingmodemoduleoption = $data->mailingmode;
+            $data->mailingmodemoduleoption = $data->mailingmodeoption;
             $data->mailingmode = '';
         }
         if (!empty($data->targetmoduleid)) {
