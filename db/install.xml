@@ -38,7 +38,8 @@
         <FIELD NAME="targetmoduleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The linked module ID (triggering activity)"/>
         <FIELD NAME="targetmodulestatus" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="The linked module status (triggering activity)"/>
         <FIELD NAME="customcertmoduleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The linked module customcert ID (optional)"/>
-        <FIELD NAME="mailingmodemodule" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" DEFAULT="1" COMMENT="Not sure that this field is needed"/>
+        <FIELD NAME="mailingmodemodule" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" DEFAULT="1" COMMENT=""/>
+        <FIELD NAME="mailingmodecompletion" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" DEFAULT="1" COMMENT=""/>
         <FIELD NAME="mailingmodemoduleoption" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" DEFAULT="1" COMMENT="Option on when the mail should be sent for SCORM"/>
         <FIELD NAME="starttime" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="The time when the mailing must start"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>

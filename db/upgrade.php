@@ -102,5 +102,18 @@ function xmldb_custommailing_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024110600, 'custommailing');
     }
 
+    if ($oldversion < 2024110601) {
+
+        // Define field mailingcohorts to be added to custommailing_mailing.
+        $table = new xmldb_table('custommailing_mailing');
+
+        $field = new xmldb_field('mailingmodecompletion', XMLDB_TYPE_INTEGER, '4', null, null, null, null, 'customcertmoduleid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2024110601, 'custommailing');
+    }
+
     return true;
 }

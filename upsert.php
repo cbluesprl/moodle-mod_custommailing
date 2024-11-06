@@ -88,10 +88,8 @@ if ($form->is_cancelled()) {
 
     $mailing->mailingdelay = null;
 
-    if (empty($data->mailingmodecompletion)) {
-        $data->mailingmodecompletion = 0;
-    }
-    $mailing->targetmodulestatus = $data->mailingmodecompletion;
+    $mailing->mailingmodecompletion = (int) $data->mailingmodecompletion;
+    $mailing->targetmodulestatus = !empty($data->targetmoduleid) ? 1 : 0;
     if (!empty($data->mailingmodeoption)  && $data->mailingmode != '2') {
         $mailing->mailingmode = $data->mailingmodeoption;
         $mailing->mailingdelay = (int) $data->mailingdelay;
@@ -144,7 +142,9 @@ if ($form->is_cancelled()) {
             $data->mailingmode = 'option';
             $data->mailingmodeoption = $mailing->mailingmode;
         }
+
         if($data->targetmodulestatus) {
+
             $data->mailingmodemodule = 'option';
             $data->mailingdelaymodule = $data->mailingdelay;
             $data->mailingmodemoduleoption = $data->mailingmodeoption;
