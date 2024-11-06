@@ -84,5 +84,23 @@ function xmldb_custommailing_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024070500, 'custommailing');
     }
 
+    if ($oldversion < 2024110600) {
+
+        // Define field mailingcohorts to be added to custommailing_mailing.
+        $table = new xmldb_table('custommailing_mailing');
+
+        $field = new xmldb_field('mailingmodemodule', XMLDB_TYPE_INTEGER, '4', null, null, null, null, 'customcertmoduleid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('mailingmodemoduleoption', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'customcertmoduleid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2024110600, 'custommailing');
+    }
+
     return true;
 }
