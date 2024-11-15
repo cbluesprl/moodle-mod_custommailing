@@ -468,7 +468,7 @@ function custommailing_getsql($mailing)
             $join_retro = " JOIN {user_enrolments} ue ON ue.userid = u.id
                             JOIN {enrol} e ON e.id = ue.enrolid 
                             JOIN {course} c ON c.id = e.courseid ";
-            $sql_where .= " c.id = :courseid AND ue.timecreated >= :timecreated AND (ue.timestart = 0 OR ue.timestart >= :timestart) AND (ue.timeend = 0 OR ue.timeend >= :timeend)";
+            $sql_where .= " AND c.id = :courseid AND ue.timecreated >= :timecreated AND (ue.timestart = 0 OR ue.timestart >= :timestart) AND (ue.timeend = 0 OR ue.timeend >= :timeend)";
             $params['courseid'] = $mailing->courseid;
             $params['timecreated'] = $mailing->timecreated;
             $params['timestart'] = $mailing->timecreated;
@@ -490,11 +490,11 @@ function custommailing_getsql($mailing)
                 $join_retro
                 JOIN {logstore_standard_log} lsl ON lsl.userid = u.id AND lsl.contextlevel = 70 AND lsl.contextinstanceid = :contextinstanceid AND lsl.action = 'launched' AND lsl.target = 'sco' 
                 LEFT JOIN {course_modules_completion} cmc ON cmc.userid = u.id AND cmc.coursemoduleid = :coursemoduleid
-                WHERE lsl.timecreated < :timecreated $sql_where
+                WHERE lsl.timecreated < :timecreated_lsl $sql_where
                 ";
         $params['contextinstanceid'] = $mailing->targetmoduleid;
         $params['coursemoduleid'] = $mailing->targetmoduleid;
-        $params['timecreated'] = $start->getTimestamp();
+        $params['timecreated_lsl'] = $start->getTimestamp();
 
     } elseif ($mailing->mailingmode == MAILING_MODE_SEND_CERTIFICATE && !empty($mailing->customcertmoduleid)) {
         custommailing_certifications($mailing->customcertmoduleid, $mailing->courseid);
