@@ -101,3 +101,6 @@ $string['privacy:metadata:emailtouserid'] = 'Identifiant de l\'utilisateur';
 $string['privacy:metadata:emailstatus'] = 'Statut d\'envoi de l\'email';
 $string['privacy:metadata:timecreated'] = 'Date et heure de création';
 $string['privacy:metadata:timemodified'] = 'Date et heure de modification';
+
+$string['custommailing:addinstance'] = "Ajouter une instance de mails personnalisés";
+$string['custommailing:manage'] = "Permet la gestion des mails personnalisés";

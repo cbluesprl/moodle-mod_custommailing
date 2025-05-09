@@ -122,50 +122,37 @@ function custommailing_delete_instance($id) {
     return $result;
 }
 
-/**
- * @param $feature
- * @return bool|null
- */
-function custommailing_supports($feature) {
-    switch($feature) {
-        case FEATURE_GRADE_HAS_GRADE:
-            return false;
-        case FEATURE_GRADE_OUTCOMES:
-            return false;
-        case FEATURE_ADVANCED_GRADING:
-            return false;
-        case FEATURE_CONTROLS_GRADE_VISIBILITY:
-            return false;
-        case FEATURE_COMPLETION_TRACKS_VIEWS:
-            return false;
-        case FEATURE_COMPLETION_HAS_RULES:
-            return false;
-        case FEATURE_NO_VIEW_LINK:
-            return false;
-        case FEATURE_IDNUMBER:
-            return true;
-        case FEATURE_GROUPS:
-            return false;
-        case FEATURE_GROUPINGS:
-            return false;
-        case FEATURE_MOD_INTRO:
-            return false;
-        case FEATURE_MODEDIT_DEFAULT_COMPLETION:
-            return false;
-        case FEATURE_COMMENT:
-            return false;
-        case FEATURE_RATE:
-            return false;
-        case FEATURE_BACKUP_MOODLE2:
-            return true;
-        case FEATURE_SHOW_DESCRIPTION:
-            return false;
-        case FEATURE_USES_QUESTIONS:
-            return false;
-        default:
-            return false;
-    }
+function custommailing_supports($feature): bool|int|string|null
+{
+    return match ($feature) {
+        FEATURE_GRADE_HAS_GRADE,
+        FEATURE_GRADE_OUTCOMES,
+        FEATURE_ADVANCED_GRADING,
+        FEATURE_CONTROLS_GRADE_VISIBILITY,
+        FEATURE_COMPLETION_TRACKS_VIEWS,
+        FEATURE_COMPLETION_HAS_RULES,
+        FEATURE_NO_VIEW_LINK,
+        FEATURE_GROUPS,
+        FEATURE_GROUPINGS,
+        FEATURE_MOD_INTRO,
+        FEATURE_MODEDIT_DEFAULT_COMPLETION,
+        FEATURE_COMMENT,
+        FEATURE_RATE,
+        FEATURE_SHOW_DESCRIPTION,
+        FEATURE_USES_QUESTIONS
+        => false,
+
+        FEATURE_IDNUMBER,
+        FEATURE_BACKUP_MOODLE2
+        => true,
+
+        FEATURE_MOD_ARCHETYPE => MOD_ARCHETYPE_OTHER,
+        FEATURE_MOD_PURPOSE => MOD_PURPOSE_CONTENT,
+
+        default => null,
+    };
 }
+
 
 /**
  * @param mixed $only [false for all OR modname (scorm, quiz, etc...)]

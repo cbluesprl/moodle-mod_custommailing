@@ -103,3 +103,5 @@ $string['privacy:metadata:emailstatus'] = 'Email status';
 $string['privacy:metadata:timecreated'] = 'Time created';
 $string['privacy:metadata:timemodified'] = 'Time modified';
 
+$string['custommailing:addinstance'] = "Add instance of custom mailings";
+$string['custommailing:manage'] = "Allows management of custom mailings";
