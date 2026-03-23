@@ -167,7 +167,7 @@ class Mailing {
         $sql = "SELECT cm.*, c.course as courseid
                 FROM {custommailing_mailing} cm
                 JOIN {custommailing} c ON c.id = cm.custommailingid
-                ";
+                WHERE cm.mailingstatus = :mailingstatus";
         $rs = $DB->get_recordset_sql($sql, ['mailingstatus' => MAILING_STATUS_ENABLED]);
         foreach ($rs as $record) {
             $record = Mailing::format($record);

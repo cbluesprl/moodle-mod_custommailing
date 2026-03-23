@@ -543,10 +543,11 @@ function custommailing_crontask() {
 
     $sql = "SELECT u.*, u.id as userid, rm.mailinggroups, rm.mailingsubject, rm.mailingcontent, rl.id as logid, rm.customcertmoduleid
             FROM {user} u
-            JOIN {custommailing_logs} rl ON rl.emailtouserid = u.id 
+            JOIN {custommailing_logs} rl ON rl.emailtouserid = u.id
             JOIN {custommailing_mailing} rm ON rm.id = rl.custommailingmailingid
-            WHERE rl.emailstatus < :mailing_log_sent";
-    $logs = $DB->get_recordset_sql($sql, ['mailing_log_sent' => MAILING_LOG_SENT]);
+            WHERE rl.emailstatus < :mailing_log_sent
+            AND rm.mailingstatus = :mailingstatus";
+    $logs = $DB->get_recordset_sql($sql, ['mailing_log_sent' => MAILING_LOG_SENT, 'mailingstatus' => MAILING_STATUS_ENABLED]);
     foreach ($logs as $log) {
         if (!empty($log->customcertmoduleid)) {
             $attachment = custommailing_getcertificate($log->userid, $log->customcertmoduleid);
