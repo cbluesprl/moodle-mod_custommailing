@@ -34,18 +34,17 @@ This requires Git being installed. If you do not have Git installed, please visi
 Once you have Git installed, simply visit your Moodle mod directory and clone the repository using the following command.
 
 ```
-git clone https://github.com/cbluesprl/moodle-mod_custommailing.git custommailing
+git clone https://github.com/cbluesprl/moodle-mod_custommailing.git public/mod/custommailing
 ```
 
 Or add it with submodule command if you use submodules.
 
 ```
-git submodule add https://github.com/cbluesprl/moodle-mod_custommailing.git mod/custommailing
-```
+git submodule add https://github.com/cbluesprl/moodle-mod_custommailing.git public/mod/custommailing
 
 ### Download the zip
 
-Visit the [Moodle plugins website](https://moodle.org/plugins/mod_custommailing "Moodle plugins website") and download the zip corresponding to the version of Moodle you are using. Extract the zip and place the 'custommailing' folder in the mod folder in your Moodle directory.
+Visit the [Moodle plugins website](https://moodle.org/plugins/mod_custommailing "Moodle plugins website") and download the zip corresponding to the version of Moodle you are using. Extract the zip and place the 'custommailing' folder in the public/mod folder in your Moodle directory.
 
 ## License
 
