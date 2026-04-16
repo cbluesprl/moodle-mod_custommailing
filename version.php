@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 202505090001;
+$plugin->version = 2025050901;
 $plugin->requires = 2020061500; // Requires 3.9
 $plugin->component = 'mod_custommailing';
 $plugin->release = 'v1.5.1.1';
